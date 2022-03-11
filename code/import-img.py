@@ -8,16 +8,11 @@ import torchvision
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
-cifar_data_train = torchvision.datasets.CIFAR10('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/cifar-10',
-train=True, transform=ToTensor(),
-)
+class datasets:
+    def __init__(self):
+        self.cifar_data = torchvision.datasets.CIFAR10('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/CIFAR')
+        self.caltech_data = torchvision.datasets.Caltech101('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/CALTECH')
+        self.mnsit_data = torchvision.datasets.MNIST('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/MNIST')
+        self.stl_data = torchvision.datasets.STL10('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/STL')
 
-cifar_data_test = torchvision.datasets.CIFAR10('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/cifar-10',
-train=False, transform=ToTensor(),
-)
-
-train_dataloader = DataLoader(cifar_data_train, batch_size=64)
-test_dataloader = DataLoader(cifar_data_test,batch_size=64)
-
-
-
+    
