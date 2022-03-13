@@ -1,2 +1,7 @@
-Superklasse die Laden der Datasets übernimmt
-Klasse für CNN
+4 bilddaten
+
+->laden von data und label
+->umformatieren data und label
+->train test split
+->ohc
+->nn
