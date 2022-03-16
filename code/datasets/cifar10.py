@@ -1,9 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-import cv2
-import glob
-
+from torch.utils.data import Dataset
+from neuralnetwork.preprocessing import  transforms
 # CIFAR10 Datensatz aus https://www.cs.toronto.edu/~kriz/cifar.html
 # Eigenschaften: 50000 Dateien aufgeteilt in 5 batches und testbatch mit 10000 Dateien
 # Bildgroesse 32x32x3
@@ -19,17 +18,15 @@ def unpickle(file):
     return dict
 
 
-class CIFAR10():
+class CIFAR10(Dataset):
 
-    def __init__(self,dir):
+    def __init__(self,path_to_dir,transforms=None):
         self.meta_data = unpickle(dir + "/batches.meta")
-        self.path_to_dir = dir
-        self.cifar_train_data,self.cifar_train_labels,self.cifar_test_data,self.cifar_test_labels = self.__load_data()
-    
-    def get_cifar_data(self):
-        return self.cifar_train_data,self.cifar_train_labels,self.cifar_test_data,self.cifar_test_labels
+        self.path_to_dir = path_to_dir
+        self.train_data,self.train_labels,self.test_data,self.test_labels = self.__load()
+        self.transform = transforms
 
-    def __load_data(self):
+    def __load(self):
         #num_cases_per_batch: 10000
         #label_names': airplane,automobile,bird,cat,deer,dog,frog,horse,ship,truck
         #num_vis: 3072
@@ -63,6 +60,25 @@ class CIFAR10():
         cifar_test_labels = cifar_test_batch[b'labels']
 
         return cifar_train_data,cifar_train_labels,cifar_test_data,cifar_test_labels
+    
+    def __len__(self):
+        return len(self.train_labels), len(self.test_labels)
+    
+    def __getitem__(self,train=False):
+        data_train = self.train_data
+        data_test = self.test_data
+        if train:
+            if self.transform:
+                data_train = self.transform(data_train)
+                return data_train,self.train_labels
+            return data_train,self.train_labels
+        else: 
+            if self.transform:
+                data_test = self.transform(data_test)
+                return data_test,self.test_labels
+            return data_test, self.test_labels
+
+        
 
     def rename_labels(self,train_label,test_label):
 
@@ -126,12 +142,21 @@ class CIFAR10():
                 ax[i,j].get_yaxis().set_visible(False)
         plt.show()
 
+    def get_mean_std_deviation(self):
+        mean = 0
+        std_deviation = 0
+        mean = self.train_data.mean() /255
+        std_deviation = self.train_data.std() / 255
+
+        return round(mean,4),round(std_deviation,4)
 
 
 def main():
     cif = CIFAR10('E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/cifar-10-batches-py/')
-    cifar_train_data,cifar_train_labels = cif.get_cifar_data()
-    cif.print_data(cifar_train_data,cifar_train_labels)
+    a,b = cif.get_mean_std_deviation()
+    print(a)
+    print(b)
+    #cif.print_data(cifar_train_data,cifar_train_labels)
 
 
 if __name__== "__main__":
