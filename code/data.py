@@ -21,7 +21,7 @@ class caltech101():
     
     def __init__(self):
         #Init des Dateipfads sowie laden der Daten
-        self.path_to_dir = 'E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/caltech101/101_ObjectCategories'
+        self.path_to_dir = 'files/caltech101/101_ObjectCategories'
         self.data,self.labels = self.__load()
         
     def __load(self):
@@ -88,7 +88,7 @@ def unpickle(file):
 class CIFAR10():
 
     def __init__(self):
-        self.path_to_dir = 'E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/cifar-10-batches-py'
+        self.path_to_dir = 'files/cifar-10-batches-py'
         self.meta_data = unpickle(self.path_to_dir + "/batches.meta")
         self.data,self.labels = self.__load()
 
@@ -160,7 +160,7 @@ class MNIST():
 
     def __init__(self):
         
-        path_to_dir = 'E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/mnist/raw'
+        path_to_dir = 'files/mnist/raw'
         self.filename_train_data = path_to_dir+"/train-images-idx3-ubyte.gz"
         self.filename_train_labels = path_to_dir + "/train-labels-idx1-ubyte.gz"
         self.filename_test_data = path_to_dir + "/t10k-images-idx3-ubyte.gz"
@@ -273,7 +273,7 @@ class MNIST():
 
 
 def main():
-    cal = caltech101()
+    cal = MNIST()
 
 
 
