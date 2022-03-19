@@ -3,6 +3,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from torchvision import  transforms
 
+from torch.utils.data import Dataset
+
 def train_test_validate_split(train_ratio, test_ratio, validation_ratio, X, y):
     #X = Daten
     #y = Label
@@ -45,4 +47,21 @@ def ohc(X,y,already_split=True):
             'y_val':y_val
             }
     return dic
-        
+
+
+class CustomDataset(Dataset):
+    
+    def __init__(self,images,labels,transform = None):
+        self.data = images,
+        self.labels = labels
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self,idx): 
+        image = self.data[idx]
+        data = {'image':image,'label':self.labels}
+        if self.transform:
+            data = self.transform(data)
+        return data
