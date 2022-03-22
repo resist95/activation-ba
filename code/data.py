@@ -1,8 +1,6 @@
-from cProfile import label
+
 import numpy as np
 import os
-import sys
-
 import glob
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
@@ -10,42 +8,74 @@ import cv2 as cv
 import pickle
 import gzip
 
-# CALTECH101 Datensatz aus http://www.vision.caltech.edu/Image_Datasets/Caltech101/
-# Eigenschaften: 101 Kategorien. 40 bis 800 Bilder pro Kategorie
-# Bildgroesse 200 x 200 x 3
+# INTEL Datensatz aus
+# Eigenschaften: 6 Kategorien aufgeteilt in train und test train 14034 Dateien 3000 test
+# Bildgroesse 150 x 150 x 3
 # 
 # Dateiformat nach extraktion Label,Data -> ndarray
 
 
-class caltech101():
+class Intel():
     
     def __init__(self):
         #Init des Dateipfads sowie laden der Daten
-        self.path_to_dir = 'files/caltech101/101_ObjectCategories'
+        self.path_to_dir = 'files/intel'
         self.data,self.labels = self.__load()
         
     def __load(self):
         # Laden der Daten mithilfe von glob das alle
         # Daten mit .jpg auflistet und liste hinzufügt
-        path_to_img = self.path_to_dir + '/*/*.jpg'
-        imgfiles = []
-        for file in glob.glob(path_to_img):
-            imgfiles.append(file)
-        
         data = []
         labels = []
-        for paths in imgfiles:
+        filename_train_data = self.path_to_dir + '/train/**/*.jpg'
+        train_imgfiles = []
+        for file in glob.glob(filename_train_data):
+            train_imgfiles.append(file)
+
+        train_data = []
+        train_labels = []
+        size = (150,150)
+        for paths in train_imgfiles:
         # Labels an Liste hinzufügen
-        # Bilder resizen das alle gleiche groesse und dim haben
+        # 
         # Zum Schluss umwandeln liste in ndarray
-        # np.shape = (8676, 200, 200, 3)    
-            labels.append(paths.split(os.path.sep)[-2])
+        # np.shape = ()
+            train_labels.append(paths.split(os.path.sep)[-2])
             I = cv.imread(paths)
-            data.append(I)
-        data = np.asarray(data,dtype=object)
+            resized = cv.resize(I,size)
+            RGB_img = cv.cvtColor(resized, cv.COLOR_BGR2RGB)
+            train_data.append(RGB_img)
 
         lb = LabelEncoder()
-        labels = lb.fit_transform(labels)
+        train_labels = lb.fit_transform(train_labels)
+
+        # Laden der Daten mithilfe von glob das alle
+        # Daten mit .jpg auflistet und liste hinzufügt
+        filename_test_data = self.path_to_dir + '/test/**/*.jpg'
+        test_imgfiles = []
+        for file in glob.glob(filename_test_data):
+            test_imgfiles.append(file)
+
+        test_data = []
+        test_labels = []
+        size = (150,150)
+        for paths in test_imgfiles:
+        # Labels an Liste hinzufügen
+        # 
+        # Zum Schluss umwandeln liste in ndarray
+        # np.shape = ()
+            test_labels.append(paths.split(os.path.sep)[-2])
+            I = cv.imread(paths)
+            resized = cv.resize(I,size)
+            RGB_img = cv.cvtColor(resized, cv.COLOR_BGR2RGB)
+            test_data.append(RGB_img)
+
+        lb = LabelEncoder()
+        test_labels = lb.fit_transform(test_labels)
+        data = train_data +test_data
+        labels = np.append(train_labels,test_labels)
+        data = np.array(data)
+        
         return data,labels
 
     def get_data(self):
@@ -54,19 +84,20 @@ class caltech101():
     def print_data(self):      
         for i in range(1,9):
             plt.subplot(330+1*i)
-            plt.imshow(self.train_data[i], cmap=plt.get_cmap('gray'))
-            plt.show()
+            plt.imshow(self.data[i], cmap=plt.get_cmap('gray'))
+            
+        plt.show()
     
     def get_mean_std_deviation(self):
         # Berechnen vom mean und std abweichung der einzelnen pixelwerte
-        mean = 0
-        std_deviation = 0
-        mean = self.data.mean() /255
-        std_deviation = self.data.std() / 255
+        mean = []
+        std = []
+        mean = self.data.mean(axis=(0,1))
+        std = self.data.std(axis=(0,1))
+        mean = np.mean(mean,axis=(0)) /255
+        std = np.mean(std,axis=(0)) /255
 
-        return round(mean,4),round(std_deviation,4)
-    
-
+        return np.round(mean,4), np.round(std,4)
 
 
 # CIFAR10 Datensatz aus https://www.cs.toronto.edu/~kriz/cifar.html
@@ -130,7 +161,7 @@ class CIFAR10():
         plot, ax = plt.subplots(3,3)
         for i in range(3):
             for j in range(3):
-                idx = np.random.randint(0,train_data.shape[0])
+                idx = np.random.randint(0,self.data.shape[0])
 
                 ax[i,j].imshow(train_data[idx])
                 ax[i,j].set_xlabel(name[idx])
@@ -138,15 +169,15 @@ class CIFAR10():
         plt.show()
 
     def get_mean_std_deviation(self):
-        mean = 0
-        std_deviation = 0
-        mean = self.train_data.mean() /255
-        std_deviation = self.train_data.std() / 255
-
-        return round(mean,4),round(std_deviation,4)
-
-
-
+        mean = []
+        std = []
+        mean = self.data.mean(axis=(0,1))
+        std = self.data.std(axis=(0,1))
+        mean = np.mean(mean,axis=(0)) /255
+        std = np.mean(std,axis=(0)) /255
+        
+        return np.round(mean,4), np.round(std,4)
+    
 
 # MNIST Datensatz aus http://yann.lecun.com/exdb/mnist/
 # Eigenschaften: 60000 Dateien Trainingssatz und 10000 Testdatensaetze
@@ -262,21 +293,19 @@ class MNIST():
             
         for i in range(1,9):
             plt.subplot(330+1*i)
-            plt.imshow(self.train_data[i], cmap=plt.get_cmap('gray'))
+            plt.imshow(self.data[i], cmap=plt.get_cmap('gray'))
             plt.show()
     
     def get_mean_std_deviation(self):
-        mean = self.train_data.mean() / 255
-        std_deviation = self.train_data.std() / 255
-    
+        mean = self.data.mean() / 255
+        std_deviation = self.data.std() / 255
         return round(mean,4),round(std_deviation,4)
 
 
 def main():
-    cal = MNIST()
-
-
-
+    cal = Intel()
+    cal.get_mean_std_deviation()
+    
 if __name__== "__main__":
 
     main()
