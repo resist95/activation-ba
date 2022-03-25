@@ -49,7 +49,7 @@ class CNN_CIFAR(nn.Module):
         x = self.pool(x)
         x = self.relu(self.conv3(x))
         x = self.pool(x)
-        x = x.view(-1,1024)
+        x = x.view(-1,64*4*4)
         x = self.relu(self.linear1(x))
         x = F.softmax(self.linear2(x),dim=0)
         x = self.relu(x)

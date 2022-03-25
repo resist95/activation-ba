@@ -23,10 +23,9 @@ import torchviz
 
 def make_train_step(model,loss_fn,optimizer):
     def train_step(X,y):
-
         model.train()        
-        X_train = model(X)
-        loss = loss_fn(y,X_train)
+        pred = model(X)
+        loss = loss_fn(pred,y)
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
@@ -51,7 +50,7 @@ cal = caltech101()
 mni = MNIST()
 inte = Intel()
 
-data = [mni,cif,inte,cal]
+data = [cif,mni,inte,cal]
 data_names = ['MNIST_Dataset','CIFAR_Dataset','Intel_Dataset','Caltech_Dataset']
 
 print('Done.')
@@ -62,7 +61,7 @@ cifa = Cifar10Dataset
 calt = Caltech101Dataset
 intel = IntelDataset
 
-datasets = [mnis,cifa,intel,calt]
+datasets = [cifa,mnis,intel,calt]
 train_loader = []
 test_loader = []
 
@@ -80,7 +79,7 @@ print('Done')
 
 #declare nn here
 mni_nn = 'define here'
-cif_nn = CNN_CIFAR
+cif_nn = CNN_CIFAR()
 int_nn = 'define here'
 cal_nn = 'define here'
 
@@ -92,15 +91,19 @@ val_losses = []
 i = 0
 for train,test in zip(train_loader,test_loader):
     #define loss,optimizer
-    curr_model = model[1]    
+    curr_model = cif_nn
+    curr_model = curr_model.to(device)    
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(curr_model.parameters(),lr=lr)    
+    optimizer = optim.SGD(curr_model.parameters(),lr=lr)    
     train_step = make_train_step(curr_model,loss_fn,optimizer)
     
     for epoch in range(n_epochs):
         for X_train,y_train in train:
             X_train = X_train.to(device)
             y_train = y_train.to(device)
+
+            loss = train_step(X_train,y_train)
+            losses.append(loss)
         
         with torch.no_grad():
             for X_test,y_test in test:
@@ -108,9 +111,8 @@ for train,test in zip(train_loader,test_loader):
                 y_test = y_test.to(device)
                 
                 curr_model.eval()
-                
                 x_val = curr_model(X_test)
-                val_loss = loss_fn(X_test,x_val)
+                val_loss = loss_fn(x_val,y_test)
                 val_losses.append(val_loss.item())
     
     #PATH = '../models/'
