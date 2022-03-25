@@ -1,65 +1,121 @@
-from context import cifar10dataset
-from context import caltech101dataset
-from context import mnistdataset
-
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-
-class CustomDataset(Dataset):
-    
-    def __init__(self,images,labels,transform = None):
-        self.data = images,
-        self.labels = labels
-        self.transform = transform
-    
-    def __len__(self):
-        return len(self.labels)
-    
-    def __getitem__(self,idx): 
-        image = self.data[idx]
-        data = {'image':image,'label':self.labels}
-        if self.transform:
-            data = self.transform(data)
-        return data
 
 
-train_ratio = 0.7
-test_ratio = 0.2
+
+from data import CIFAR10
+from data import caltech101
+from data import MNIST
+from data import Intel
+
+from datasets import Caltech101Dataset
+from datasets import Cifar10Dataset
+from datasets import MnistDataset
+from datasets import IntelDataset
+
+from cnn import CNN_CIFAR
+
+import numpy as np
+import torch
+import torchvision
+import torch.optim as optim
+import torch.nn as nn
+import torchviz 
+
+
+def make_train_step(model,loss_fn,optimizer):
+    def train_step(X,y):
+
+        model.train()        
+        X_train = model(X)
+        loss = loss_fn(y,X_train)
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        return loss.item()
+    return train_step
+
+#device setup
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
+#define param here
 val_ratio = 0.1
-cif = cifar10dataset(val_ratio)
-mni = mnistdataset(val_ratio)
-cal = caltech101dataset(train_ratio,test_ratio,val_ratio)
+batch_size = 32
+n_epochs = 50
+lr = 0.01
 
-data = [cif,mni,cal]
-dataset_names = ['CIFAR10','MNIST','CALTECH101']
 
-train_transforms = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean = [0.485,0.456,0.406], std=[0.229,0.224,0.225]),
-])
+#load data
+print('Loading Data... \n')
+cif = CIFAR10()
+cal = caltech101()
+mni = MNIST()
+inte = Intel()
 
-val_transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean = [0.485,0.456,0.406], std=[0.229,0.224,0.225]),
-]) 
+data = [mni,cif,inte,cal]
+data_names = ['MNIST_Dataset','CIFAR_Dataset','Intel_Dataset','Caltech_Dataset']
 
-cif_nn =   "#todo cnn"
-mnist_nn = "#todo cnn"
-cal_nn = "#todo cnn"
+print('Done.')
 
-cnn = [cif_nn,mnist_nn,cal_nn]
+#load into dataloader
+mnis = MnistDataset
+cifa = Cifar10Dataset
+calt = Caltech101Dataset
+intel = IntelDataset
 
-for ds in data:
-    dic = ds.get_split_data()
-    train_data = CustomDataset(dic['X_train'],dic['y_train'],train_transforms)
-    test_data = CustomDataset(dic['X_test'],dic['y_test'],val_transform)
-    val_data = CustomDataset(dic['X_val'],dic['y_val'],val_transform)
+datasets = [mnis,cifa,intel,calt]
+train_loader = []
+test_loader = []
 
-    trainLoader = DataLoader(train_data,batch_size=32,shuffle=True,num_workers=4)
-    testLoader = DataLoader(test_data,batch_size=32,shuffle=True,num_workers=4)
-    valLoader = DataLoader(val_data,batch_size=32,shuffle=True,num_workers=4)
+print('Loading train and test samples into DataLoader... \n')
+for i,dat in enumerate(data):
+    X_train,y_train,X_test,y_test = dat.get_data()
+    train = datasets[i](X_train,y_train)
+    test = datasets[i](X_test,y_test)
+    train_l = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size,shuffle=True)
+    test_l = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size,shuffle=False)
+    train_loader.append(train_l)
+    test_loader.append(test_l)
+
+print('Done')
+
+#declare nn here
+mni_nn = 'define here'
+cif_nn = CNN_CIFAR
+int_nn = 'define here'
+cal_nn = 'define here'
+
+model = [mni_nn,cif_nn,int_nn,cal_nn]
+
+losses = []
+val_losses = []
+
+i = 0
+for train,test in zip(train_loader,test_loader):
+    #define loss,optimizer
+    curr_model = model[1]    
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(curr_model.parameters(),lr=lr)    
+    train_step = make_train_step(curr_model,loss_fn,optimizer)
+    
+    for epoch in range(n_epochs):
+        for X_train,y_train in train:
+            X_train = X_train.to(device)
+            y_train = y_train.to(device)
+        
+        with torch.no_grad():
+            for X_test,y_test in test:
+                X_test = X_test.to(device)
+                y_test = y_test.to(device)
+                
+                curr_model.eval()
+                
+                x_val = curr_model(X_test)
+                val_loss = loss_fn(X_test,x_val)
+                val_losses.append(val_loss.item())
+    
+    #PATH = '../models/'
+    #torch.save(model[num].state_dict(), PATH)
+    i +=1
+          
+
 

@@ -1,107 +1,92 @@
 
-from data import Intel
-from data import CIFAR10
-from data import MNIST
-
-from context import validate_split
+import numpy as np
 import torch
-import torchvision
-import torchvision.transforms as transforms
+import torchvision.transforms as T
+from torch.utils.data import Dataset
 
 
-class inteldataset():
+class Caltech101Dataset(Dataset):
 
-    def __init__(self,validation_ratio):
-        self.int = Intel()
-        self.data,self.labels = self.int.get_data()
-        train_data = self.data[0:14034]
-        train_labels = self.labels[0:14034]
-        test_data = self.data[14034:]
-        test_labels = self.labels[14034:]
-
-        self.X_train = train_data
-        self.y_train = train_labels
-        self.X_test = test_data
-        self.y_test = test_labels
-        self.X_val,self.y_val = validate_split(0.2,validation_ratio,self.X_test,self.y_test)
-     
-    def get_split_data(self):
-        dic = {'X_train':self.X_train,
-            'X_test':self.X_test,
-            'X_val':self.X_val,
-            'y_train':self.y_train,
-            'y_test':self.y_test,
-            'y_val':self.y_val}
-        return dic
-
-
-class cifar10dataset():
+    def __init__(self,images,labels):
+        self.images = images
+        self.labels = labels
+        self.transform = T.Compose([
+            T.ToTensor(),
+            T.Resize((224,224))
+        ])
     
-    def __init__(self,validation_ratio):
-        self.cif = CIFAR10()
-        self.data,self.labels = self.cif.get_data()
-        train_data = self.data[0:50000]
-        train_labels = self.labels[0:50000]
-        test_data = self.data[50000:]
-        test_labels = self.labels[50000:]
-        
-        self.X_train = train_data
-        self.y_train = train_labels
-        self.X_test = test_data
-        self.y_test = test_labels
-        self.X_val,self.y_val = validate_split(0.2,validation_ratio,self.X_test,self.y_test)
+    def __len__(self):
+        return len(self.images)
     
-    def get_transforms(self):
-        mean,std = self.cif.get_mean_std_deviation()
-        transform = transforms.Compose([transforms.ToTensor(),
-        transforms.Normalize((mean),(std))])
-        return transform
-    
-    def get_split_data(self):
-        dic = {'X_train':self.X_train,
-            'X_test':self.X_test,
-            'X_val':self.X_val,
-            'y_train':self.y_train,
-            'y_test':self.y_test,
-            'y_val':self.y_val}
-        return dic
+    def __getitem__(self,idx):
+        if self.transform:
+            images = self.transform(self.images[idx])
+        return (images,self.labels[idx])
 
 
-class mnistdataset():
+class IntelDataset(Dataset):
 
-    def __init__(self, validation_ratio):
-        self.mnist = MNIST()
-        self.data,self.labels = self.mnist.get_data()
-        train_data = self.data[0:60000]
-        train_labels = self.labels[0:60000]
-        test_data = self.data[60000:]
-        test_labels = self.labels[60000:]
+    def __init__(self,images,labels):
+        self.images = np.array(images)
+        self.labels = labels
+        self.transform = T.Compose([
+        T.ToTensor()
+    ])
 
-        self.X_train = train_data
-        self.y_train = train_labels
-        self.X_test = test_data
-        self.y_test = test_labels
-        self.X_val,self.y_val = validate_split(0.2,validation_ratio,self.X_test,self.y_test)
+    def __len__(self):
+        return len(self.images)
     
-    def get_transforms(self):
-        mean,std = self.mnist.get_mean_std_deviation()
-        transform = transforms.Compose([transforms.ToTensor(),
-        transforms.Normalize((mean),(std))])
-        return transform
+    def __getitem__(self,idx):
+        if self.transform:
+            images = self.transform(self.images[idx])
+            images = torch.transpose(images,0,1)
+        return (images,self.labels[idx])
+
+
+class Cifar10Dataset():
     
-    def get_split_data(self):
-        dic = {'X_train':self.X_train,
-            'X_test':self.X_test,
-            'X_val':self.X_val,
-            'y_train':self.y_train,
-            'y_test':self.y_test,
-            'y_val':self.y_val}
-        return dic
+    def __init__(self,images,labels):
+        self.images = images
+        self.labels = labels
+        self.transform = T.Compose([
+            T.ToTensor()
+        ])
+    
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self,idx):
+        if self.transform:
+            images = self.transform(self.images[idx])
+        return (images,self.labels[idx])
+
+
+class MnistDataset():
+
+    def __init__(self, images,labels):
+        self.images = images
+        self.labels = labels
+        self.transform = T.Compose([
+            T.ToTensor()
+        ])
+    
+    def __len__(self):
+        return len(self.images)
+    
+    def __getitem__(self,idx):
+        if self.transform:
+            images = self.transform(self.images[idx])
+        return (images,self.labels[idx])
+
 
 def main():
-    cal = mnistdataset(0.1)
-    transform = cal.get_transforms()
-    print(transform)
+    i = CIFAR10()
+    train_x,train_y,test_x,test_y = i.get_data()
+    train_data = Cifar10Dataset(test_x,test_y)
+    train_load = torch.utils.data.DataLoader(dataset=train_data,batch_size=32,shuffle=True)
+
+    for x , y in train_load:
+        print(y[0])
 
 if __name__== "__main__":
 
