@@ -1,4 +1,5 @@
 
+from matplotlib import transforms
 import numpy as np
 import os
 import glob
@@ -9,13 +10,16 @@ import gzip
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
+import torchvision.transforms as T
+import torch
+
 class caltech101():
 
     def __init__(self):
         #Init des Dateipfads sowie laden der Daten
         self.path_to_dir = 'files/caltech101/101_ObjectCategories'
-        data,labels = self.__load()
-        self.X_train,self.X_test,self.y_train,self.y_test = train_test_split(data,labels,test_size=0.2,train_size=0.8)
+        self.data,labels = self.__load()
+        self.X_train,self.X_test,self.y_train,self.y_test = train_test_split(self.data,labels,test_size=0.2,train_size=0.8)
     
     def __load(self):
         # Laden der Daten mithilfe von glob das alle
@@ -42,9 +46,20 @@ class caltech101():
     def get_data(self):
         return self.X_train,self.y_train,self.X_test,self.y_test
 
-def main():
-    cal = caltech101()
-    a,b,c,d = cal.get_data()
+    def get_mean_std(self):
+        transforms = T.Compose([
+            T.ToTensor(),
+            #T.Normalize(mean = [0.485,0.456,0.406], std=[0.229,0.224,0.225])
+        ])
+        for i in range(len(self.data)):
+            images = transforms(self.data[i])
+
+            print(torch.std(images))
+            print(torch.var(images))
+            print(mean,std)
+
+        
+            
 
 # INTEL Datensatz aus
 # Eigenschaften: 6 Kategorien aufgeteilt in train und test train 14034 Dateien 3000 test
@@ -116,13 +131,19 @@ class Intel():
     def get_data(self):
         return self.X_train,self.y_train,self.X_test,self.y_test
    
-    def print_data(self):      
+    def print_data(self):
+        self.X_train = np.reshape(self.X_train,(len(self.X_train),150,150,3))      
         for i in range(1,9):
             plt.subplot(330+1*i)
-            plt.imshow(self.data[i], cmap=plt.get_cmap('gray'))
+            plt.imshow(self.X_train[i], cmap=plt.get_cmap('gray'))
             
         plt.show()
-    
+
+def main():
+    cal = CIFAR10()
+    cal.print_data()
+    #cal.get_mean_std()
+    #a,b,c,d = cal.get_data()    
 
 # CIFAR10 Datensatz aus https://www.cs.toronto.edu/~kriz/cifar.html
 # Eigenschaften: 50000 Dateien aufgeteilt in 5 batches und testbatch mit 10000 Dateien
@@ -183,15 +204,15 @@ class CIFAR10():
     def get_data(self):
         return self.X_train,self.y_train,self.X_test,self.y_test
            
-    def print_data(self,train_data,name):
+    def print_data(self):
 
         plot, ax = plt.subplots(3,3)
         for i in range(3):
             for j in range(3):
-                idx = np.random.randint(0,self.data.shape[0])
+                idx = np.random.randint(0,self.X_train.shape[0])
 
-                ax[i,j].imshow(train_data[idx])
-                ax[i,j].set_xlabel(name[idx])
+                ax[i,j].imshow(self.X_train[idx])
+                ax[i,j].set_xlabel(self.y_train[idx])
                 ax[i,j].get_yaxis().set_visible(False)
         plt.show()   
 
