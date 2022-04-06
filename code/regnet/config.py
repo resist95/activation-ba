@@ -1,11 +1,9 @@
-from threading import Timer
-from models.cifar_models import CNN_CIFAR_2
+from context import CIFAR10,Cifar10Dataset
 
-from datasets.data import CIFAR10
-from datasets.datasets import Cifar10Dataset
-
+from anynet import regnetx_002_x
 import numpy as np
 import torch
+
 import torchvision
 import torch.optim as optim
 import torch.nn as nn
@@ -31,7 +29,7 @@ else:
 #define param here
 val_ratio = 0.1
 batch_size = 256
-n_epochs = 1000
+n_epochs = 100
 lr = 0.01
 
 #load data
@@ -54,7 +52,7 @@ test_l = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size,shuffle=
 print('Done')
 
 #declare nn here
-cif_nn = CNN_CIFAR_2()
+cif_nn = regnetx_002_x(num_classes=10)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(cif_nn.parameters(),lr=lr,momentum=0.9)
@@ -84,7 +82,7 @@ for epoch in range(n_epochs):
     for batch_idx, (data,targets) in enumerate(train_l):
         data = data.to(device=device)
         targets = targets.to(device=device)
-        print(np.shape(data))
+        
         #zero gradients
         optimizer.zero_grad()
 

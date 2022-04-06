@@ -1,6 +1,7 @@
-from data import MNIST
-from datasets import MnistDataset
-from cnn import CNN_MNIST
+from datasets.data import MNIST
+from datasets.datasets import MnistDataset
+
+from models.mnist_models import CNN_MNIST
 
 import numpy as np
 import torch
@@ -23,8 +24,8 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 #define param here
 val_ratio = 0.1
-batch_size = 64
-n_epochs = 20
+batch_size = 128
+n_epochs = 10
 lr = 0.001
 
 #load data
@@ -49,108 +50,74 @@ test_size = len(X_test)
 print('Done')
 
 #declare nn here
-mnist_cnn = CNN_MNIST()
+models = CNN_MNIST()
 
 
+optimizer = optim.SGD(models.parameters(),lr=5e-3,momentum=0.9)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(mnist_cnn.parameters(),lr=lr,momentum=0.9)
 
-models = mnist_cnn.to(device)
+n_epochs = 20
 
 step_train = 0
 step_test = 0
 
-for epoch in range(n_epochs):
-    #scheduler param
-    losses = []
-    #training and validation loss per epoch
-    train_losses = 0.0
-    valid_loss = 0.0
-
-    train_acc = 0.0
-    valid_acc = 0.0
-
-    #Set model to train
-    models.train()
-
-    for batch_idx, (data,targets) in enumerate(train_l):
+def evaluate(X, y, train=False):
+    if train:
+        models.zero_grad()
         
-        data = data.to(device=device)
-        targets = targets.to(device=device)
-        
-        #zero gradients
-        optimizer.zero_grad()
+    scores = models(X)
+    matches = [torch.argmax(i) == torch.argmax(j) for i,j in zip(scores,y)]
+    acc = matches.count(True)/len(matches)
 
-        #forward+backward
-        scores = models(data)
-        loss = criterion(scores,targets)
-        losses.append(loss.item())
-        
+    loss = criterion(scores,y)
+    if train:
         loss.backward()
         optimizer.step()
-        
-        
-        train_losses += loss.item() * data.size(0)
+    return acc,loss.item()
 
-        _, preds = scores.max(1)
-        correct_tensor = preds.eq(targets.data.view_as(preds))
-        accuracy = torch.mean(correct_tensor.type(torch.FloatTensor))
 
-        train_acc += accuracy.item() * data.size(0)
-        
-        num_correct = (preds==targets).sum()
-        running_train_acc = float(num_correct) /float(data.shape[0])
+def train():
+    models.train()
+    acc = 0.0
+    loss = 0.0
+    step_train = 0
+    for idx,(data,targets) in enumerate(train_l):
+            
+        data = data.to(device=device)
+        targets = targets.to(device=device)
 
-        writer.add_scalar("Training loss", loss, global_step=step_train)
-        writer.add_scalar("Training Accuracy", running_train_acc, global_step=step_train)
+        acc, loss = evaluate(data,targets,train=True)
+
+        if idx % 100:
+            writer.add_scalar("Training loss", loss, global_step=step_train)
+            writer.add_scalar("Training Accuracy", acc, global_step=step_train)
         step_train +=1
+    mean_acc = acc / len(train_l.dataset)
+    mean_loss = loss / len(train_l.dataset)
+    writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
+    writer.add_scalar('Mean Loss Train',mean_loss,epoch)
     
-    mean_loss = sum(losses) /len(losses)
-    #scheduler.step(mean_loss)
-    print(f"Cost at epoch {epoch} is {mean_loss}")
-    #Set model to eval
-    models.eval()
-
+def test():
+    step_test = 0
     with torch.no_grad():
-        for data,targets in test_l:
-            data = data.to(device)
-            targets = targets.to(device)
+        for idx,(data,targets) in enumerate(test_l):
+            data = data.to(device=device)
+            targets = targets.to(device=device)
 
-            #forward
-            scores = models(data)
-
-            #validation loss
-            loss = criterion(scores,targets)
-            valid_loss += loss.item() * data.size(0)
-
-            #validation acc
-            _, preds = scores.max(1)
-            correct_tensor = preds.eq(targets.data.view_as(preds))
-            accuracy = torch.mean(
-                correct_tensor.type(torch.FloatTensor)
-            )
-            valid_acc += accuracy.item() * data.size(0)
-            
-            num_correct = (preds==targets).sum()
-            running_test_acc = float(num_correct) /float(data.shape[0])
-
-            writer.add_scalar("Validation loss", loss, global_step=step_test)
-            writer.add_scalar("Validation Accuracy", running_test_acc, global_step=step_test)
+            acc, loss = evaluate(data,targets,train=False)
+            print(f'{loss} loss train')
+            if idx % 100:
+                writer.add_scalar("Test loss", loss, global_step=step_test)
+                writer.add_scalar("Test Accuracy", acc, global_step=step_test)
             step_test +=1
+    mean_acc = acc / len(test_l.dataset)
+    mean_loss = loss / len(test_l.dataset)
+    writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
+    writer.add_scalar('Mean Loss Train',mean_loss,epoch)
 
-    #Calculate average losses
-    train_losses = train_losses /len(train_l.dataset)
-    valid_losses = valid_loss / len(test_l.dataset)
+for epoch in range(n_epochs):
 
-    #Calculate average acc
-    train_acc = train_acc /len(train_l.dataset)
-    valid_acc = valid_acc /len(test_l.dataset)
-    writer.add_scalar("Mean Loss Train", train_losses, global_step=epoch)
-    writer.add_scalar("Mean Acc Train", train_acc, global_step=epoch)
-    writer.add_scalar("Mean Loss Validation", valid_losses, global_step=epoch)
-    writer.add_scalar("Mean Accuracy Test", valid_acc, global_step=epoch)
-            
-            
+    print(epoch)
+    train()
 
-    print(f'Train Loss: {train_losses} Train Accuracy: {train_acc}')
-    print(f'Valid Loss: {valid_losses} Valid Accuracy: {valid_acc}')
+    test()

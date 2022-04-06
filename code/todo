@@ -1,9 +1,8 @@
-cnn in colab
 
-tensorboard anbinden
+länge gradienten plotten
 
-cnn mit 3 layer kontrollieren ob overfitting
+normalisierung auf ganze train dann anwenden auf test
 
-layer dazu
 
-andere netze für datensätze bauen
+
+2. mittelwerte der mittelwerte berechnen und auf testset anwenden

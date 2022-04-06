@@ -76,41 +76,11 @@ class CNN_CIFAR(nn.Module):
         out = out.reshape(out.shape[0],-1)
         out = self.dropout(out)
         out = self.fc(out)
-        return out
+        return F.softmax(out,dim=1)
 
 ##########################################################
 #MNIST CNN für weitere Bearbeitung
-class CNN_MNIST(nn.Module):
-    def __init__(self,num_classes=10):
-        super(CNN_MNIST,self).__init__()
-        self.layers = self._make_layers()
 
-        self.fc1 = nn.Linear(2704,128)
-        self.fc2 = nn.Linear(128,10)
-        self.dropout = nn.Dropout(0.25)
-    
-    def _make_layers(self):
-        model = nn.Sequential(
-            nn.Conv2d(1,8,3,1),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
-
-            nn.MaxPool2d(2,2),
-
-            nn.Conv2d(8,16,3,1,1),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.25),
-            nn.BatchNorm2d(16),
-        )
-        return model
-    
-    def forward(self,x):
-        out = self.layers(x)
-        out = out.reshape(out.shape[0],-1)
-        out = F.relu(self.fc1(out))
-        out = self.dropout(out)
-        out = self.fc2(out)
-        return out
 
 #########################################################
 

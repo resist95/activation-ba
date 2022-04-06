@@ -1,8 +1,6 @@
-from data import Intel
-from data import caltech101
-from datasets import IntelDataset
-from datasets import Caltech101Dataset
-from cnn import CNN_Cal
+from context import Intel
+from context import IntelDataset
+from cnn import CNN_INTEL
 import numpy as np
 import torch
 import torchvision
@@ -35,12 +33,12 @@ lr = 0.005
 
 #load data
 print('Loading Data... \n')
-data = caltech101()
+data = Intel()
 
 print('Done.')
 
 #load into dataloader
-dataset = Caltech101Dataset
+dataset = IntelDataset
 
 print('Loading train and test samples into DataLoader... \n')
 X_train,y_train,X_test,y_test = data.get_data()
@@ -53,7 +51,7 @@ test_l = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size,shuffle=
 print('Done')
 
 #declare nn here
-intel_nn = CNN_Cal()
+intel_nn = CNN_INTEL()
 
 
 criterion = nn.CrossEntropyLoss()

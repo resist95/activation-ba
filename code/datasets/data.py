@@ -1,5 +1,4 @@
 
-from matplotlib import transforms
 import numpy as np
 import os
 import glob
@@ -13,54 +12,7 @@ from sklearn.preprocessing import LabelEncoder
 import torchvision.transforms as T
 import torch
 
-class caltech101():
-
-    def __init__(self):
-        #Init des Dateipfads sowie laden der Daten
-        self.path_to_dir = 'files/caltech101/101_ObjectCategories'
-        self.data,labels = self.__load()
-        self.X_train,self.X_test,self.y_train,self.y_test = train_test_split(self.data,labels,test_size=0.2,train_size=0.8)
-    
-    def __load(self):
-        # Laden der Daten mithilfe von glob das alle
-        # Daten mit .jpg auflistet und liste hinzufügt
-        path_to_img = self.path_to_dir + '/*/*.jpg'
-        imgfiles = []
-        for file in glob.glob(path_to_img):
-            imgfiles.append(file)
-
-        data = []
-        labels = []
-        for paths in imgfiles:
-        # Labels an Liste hinzufügen
-        # Bilder resizen das alle gleiche groesse und dim haben
-        # Zum Schluss umwandeln liste in ndarray
-        # np.shape = (8676, 200, 200, 3)    
-            labels.append(paths.split(os.path.sep)[-2])
-            I = cv.imread(paths)
-            data.append(I)
-        lb = LabelEncoder()
-        labels = lb.fit_transform(labels)
-        return data,labels
-    
-    def get_data(self):
-        return self.X_train,self.y_train,self.X_test,self.y_test
-
-    def get_mean_std(self):
-        transforms = T.Compose([
-            T.ToTensor(),
-            #T.Normalize(mean = [0.485,0.456,0.406], std=[0.229,0.224,0.225])
-        ])
-        for i in range(len(self.data)):
-            images = transforms(self.data[i])
-
-            print(torch.std(images))
-            print(torch.var(images))
-            print(mean,std)
-
         
-            
-
 # INTEL Datensatz aus
 # Eigenschaften: 6 Kategorien aufgeteilt in train und test train 14034 Dateien 3000 test
 # Bildgroesse 150 x 150 x 3
@@ -79,8 +31,8 @@ class Intel():
     def __load(self):
         # Laden der Daten mithilfe von glob das alle
         # Daten mit .jpg auflistet und liste hinzufügt
-        data = []
-        labels = []
+        test_label_ohc = []
+        train_label_ohc = []
         filename_train_data = self.path_to_dir + '/train/**/*.jpg'
         train_imgfiles = []
         for file in glob.glob(filename_train_data):
@@ -126,7 +78,11 @@ class Intel():
         lb = LabelEncoder()
         train_labels = lb.fit_transform(train_labels)
         test_labels = lb.fit_transform(test_labels)
-        return train_data,train_labels,test_data,test_labels
+        for l in train_labels:
+            train_label_ohc.append(np.eye(6)[l])
+        for l in test_labels:
+            test_label_ohc.append(np.eye(6)[l])  
+        return train_data,train_label_ohc,test_data,test_label_ohc
 
     def get_data(self):
         return self.X_train,self.y_train,self.X_test,self.y_test
@@ -138,12 +94,11 @@ class Intel():
             plt.imshow(self.X_train[i], cmap=plt.get_cmap('gray'))
             
         plt.show()
-
-def main():
-    cal = CIFAR10()
-    cal.print_data()
-    #cal.get_mean_std()
-    #a,b,c,d = cal.get_data()    
+    
+    def get_mean_std(self):
+        mean = [0.43017039, 0.45747317, 0.45384368]
+        std = [0.26868677, 0.26718564, 0.29773091]
+       
 
 # CIFAR10 Datensatz aus https://www.cs.toronto.edu/~kriz/cifar.html
 # Eigenschaften: 50000 Dateien aufgeteilt in 5 batches und testbatch mit 10000 Dateien
@@ -164,10 +119,12 @@ def unpickle(file):
 class CIFAR10():
 
     def __init__(self):
-        self.path_to_dir = 'files/cifar-10-batches-py'
+        self.path_to_dir = 'E:/Explorer/Dokumente/Bachelor/git/activation-ba/files/cifar-10-batches-py'
         self.meta_data = unpickle(self.path_to_dir + "/batches.meta")
+
         self.X_train,self.y_train,self.X_test,self.y_test = \
             self.__load()
+
 
     def __load(self):
         #num_cases_per_batch: 10000
@@ -175,10 +132,9 @@ class CIFAR10():
         #num_vis: 3072
         label_names = self.meta_data[b'label_names']
         label_names = np.array(label_names)
-            
         data = []
         labels = []
-       
+        self.labels_ohc = []
         for i in range(1,6):
             #Data,filenames und label extrahieren
             curr_batch = unpickle(self.path_to_dir + "/data_batch_{}".format(i))
@@ -191,14 +147,19 @@ class CIFAR10():
         cifar_test_batch = unpickle(self.path_to_dir + "/test_batch")
         data.append(cifar_test_batch[b'data'])
         labels += cifar_test_batch[b'labels']
+        
+        for l in labels:
+            self.labels_ohc.append(np.eye(10)[l])
+        
         #Formatierung der Liste in 3,32,32 das nn mit den Daten arbeiten kann
         data = np.reshape(data,(len(data[0])*6,3072))
         data = data.reshape(len(data),3,32,32)
         data = np.rollaxis(data, 1, 4)
         train_data = data[0:50000]
-        train_labels = labels[0:50000]
+        train_labels = self.labels_ohc[0:50000]
         test_data = data[50000:]
-        test_labels = labels[50000:]
+        test_labels = self.labels_ohc[50000:]
+
         return train_data,train_labels,test_data,test_labels
     
     def get_data(self):
@@ -214,7 +175,11 @@ class CIFAR10():
                 ax[i,j].imshow(self.X_train[idx])
                 ax[i,j].set_xlabel(self.y_train[idx])
                 ax[i,j].get_yaxis().set_visible(False)
-        plt.show()   
+        plt.show()
+
+    def get_mean_std(self):
+        mean = [0.49139968, 0.48215841, 0.44653091]
+        std =  [0.2469767,  0.24336646, 0.26144247]
 
 
 # MNIST Datensatz aus http://yann.lecun.com/exdb/mnist/
@@ -234,7 +199,7 @@ class MNIST():
         self.filename_train_labels = path_to_dir + "/train-labels-idx1-ubyte.gz"
         self.filename_test_data = path_to_dir + "/t10k-images-idx3-ubyte.gz"
         self.filename_test_labels = path_to_dir + "/t10k-labels-idx1-ubyte.gz"
-
+        
         self.X_train,self.y_train,self.X_test,self.y_test = \
             self.__load()
 
@@ -243,6 +208,7 @@ class MNIST():
         train_labels = []
         test_data = []
         test_labels = []
+        labels_ohc = []
         with gzip.open(self.filename_train_data, 'rb') as f:
         #TRAINING SET IMAGE FILE (train-images-idx3-ubyte):
         #[offset] [type]          [value]          [description]
@@ -323,8 +289,9 @@ class MNIST():
         data = np.append(train_data,test_data)
         data = data.reshape(count,image_rows,image_cols)
         labels = np.append(train_labels,test_labels)
-
-        return data[0:60000],labels[0:60000],data[60000:],labels[60000:]
+        for l in labels:
+            labels_ohc.append(np.eye(10)[l])
+        return data[0:60000],labels_ohc[0:60000],data[60000:],labels_ohc[60000:]
     
     def get_data(self):
         return self.X_train,self.y_train,self.X_test,self.y_test
@@ -336,7 +303,18 @@ class MNIST():
             plt.imshow(self.data[i], cmap=plt.get_cmap('gray'))
             plt.show()
 
-
+    def get_mean_std(self):
+        print(np.shape(self.X_train))
+        d = self.X_train /255.0
+        mean = d.mean()
+        std = d.std()
+        mean = 0.13066047627384286
+        std = 0.3081078038564622
+def main():
+    cal = Intel()
+    cal.get_mean_std()
+    #cal.get_mean_std()
+    #a,b,c,d = cal.get_data()    
 if __name__== "__main__":
 
     main()
