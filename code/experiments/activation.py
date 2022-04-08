@@ -254,14 +254,14 @@ class ActivationFunction:
             lv = 0
             for i in range(columns):
                 for l in range(rows):
-                    ax[l][i].hist(x=data[lv], bins=50, color='C0', density=True)
+                    ax[l][i].hist(x=data[lv], bins=100, color='C0', density=True)
                     ax[l][i].set_title(label = f"Layer {key} - {self.model.layers[i].__class__.__name__}")
                     lv+=1
             
             if param == 'activation':
                 fig.suptitle(f"Activation distribution for activation function {act}", fontsize=14)
                 fig.subplots_adjust(hspace=0.4, wspace=0.4)
-                plt.savefig(f'/plots/activationplot_{act}.png')
+                plt.savefig(f'activationplot_{act}.png')
             elif param == 'gradient':
                 fig.suptitle(f"Gradient distribution for activation function {act}", fontsize=14)
                 fig.subplots_adjust(hspace=0.4, wspace=0.4)
@@ -276,7 +276,7 @@ def main():
 
     #define param here
     batch_size = 128
-    n_epochs = 1
+    n_epochs = 30
     lr = 0.001
 
     #load data
@@ -299,7 +299,7 @@ def main():
     writer = SummaryWriter
     act = ActivationFunction(lr,writer)
     #act.compare_activation_functions(2,train,test)
-    act.plots(n_epochs,train,test,'gradient')
+    act.plots(n_epochs,train,test,'activation')
         
 if __name__== "__main__":
 
