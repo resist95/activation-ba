@@ -1,9 +1,10 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import torch.nn as nn
 import torch.nn.functional as F
-
+import math
 import sys
 import os
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
@@ -90,12 +91,37 @@ class CNN_MNIST_ACT(nn.Module):
             out = self.fc2(out)
             return out
 
-def print_layers(net):
-    layers = []
-    for name, layer in net._modules.items():
+activation = {}
+step = 1
+def hook_activation(model, input,output):
+    global step
+    if isinstance(model,nn.Conv2d):
+        activation[f'conv2d_{step}'] = output.view(-1).detach().numpy()
+    if isinstance(model,nn.Linear):
+        activation[f'linear_{step}'] = output.view(-1).detach().numpy()
+    if isinstance(model,nn.MaxPool2d):
+        activation[f'maxpool_{step}'] = output.view(-1).detach().numpy()
+    if isinstance(model,nn.BatchNorm2d):
+        activation[f'batchnorm_{step}'] = output.view(-1).detach().numpy()   
+
+gradient = {}
+def hook_gradient(model, input,output):
+    global step
+    #gradient = {name: data.view(-1).detach().numpy for name, data in model.named_parameters() if 'weight' in name}
+    m = model.named_parameters()
+    print(m)
+
+def print_layers(net,param):
+    for name, layer in net.named_children():
         if isinstance(layer,nn.Sequential):
-            print_layers(layer)
-            
+            print_layers(layer,param)
+        else:
+            if param == 'activation':
+                layer.register_forward_hook(hook_activation)
+            elif param == 'gradient':
+                layer.register_forward_hook(hook_gradient)
+
+
 
 class ActivationFunction:
     def __init__(self,lr,writer):
@@ -176,18 +202,19 @@ class ActivationFunction:
 
                 self.test(epoch,test)
     
-    def plot_activations(self,n_epochs,train,test):
-        for act in self.act_fn_by_name:
+    def plots(self,n_epochs,train,test,param):
+        global step
+
+        for act in self.act_fn_name:
             self.model = CNN_MNIST_ACT(self.act_fn_by_name[act],act)
             self.optimizer = optim.SGD(self.model.parameters(),lr=self.lr,momentum=0.9)
             self.model.to(device)
-
             for epoch in range( n_epochs):
                 print(f'Epoch: [{epoch+1} / {n_epochs}] current activation function: {act}')
                 self.model.train()
 
                 for idx,(data,targets) in enumerate(train):
-                            
+
                     data = data.to(device=device)
                     targets = targets.to(device=device)
                     
@@ -197,23 +224,59 @@ class ActivationFunction:
                     loss = self.criterion(scores,targets)
                     loss.backward()
                     self.optimizer.step()
-                
-                print_layers(self.model)
 
-                with torch.no_grad():
-                    self.model.eval()
-                    for idx,(data,targets) in enumerate(test):                        
-                        
-                        scores = self.model(data)
-                        loss = self.criterion(scores,targets)
-                            
+            #state_dict = self.model.state_dict()
+            #orch.save(state_dict, f'/trained_models/mnist_model_{act}')
 
+            data,targets = next(iter(test))
+            with torch.no_grad():
+                data.to(device)
+                targets.to(device)
+                print_layers(self.model,param)
+
+                scores = self.model(data)
+
+            if param == 'activation':
+                rows = len(activation)
+                columns = 1
+                data = []
+                for key in activation.keys():
+                    data.append(activation[key])
+            
+            elif param == 'gradient':
+                rows = len(gradient)
+                columns = 1
+                data = []
+                for key in gradient.keys():
+                    data.append(gradient[key])
+
+            fig, ax = plt.subplots(rows,columns, figsize=(columns*2.7,rows*2.5),squeeze=False)
+            lv = 0
+            for i in range(columns):
+                for l in range(rows):
+                    ax[l][i].hist(x=data[lv], bins=50, color='C0', density=True)
+                    ax[l][i].set_title(label = f"Layer {key} - {self.model.layers[i].__class__.__name__}")
+                    lv+=1
+            
+            if param == 'activation':
+                fig.suptitle(f"Activation distribution for activation function {act}", fontsize=14)
+                fig.subplots_adjust(hspace=0.4, wspace=0.4)
+                plt.savefig(f'/plots/activationplot_{act}.png')
+            elif param == 'gradient':
+                fig.suptitle(f"Gradient distribution for activation function {act}", fontsize=14)
+                fig.subplots_adjust(hspace=0.4, wspace=0.4)
+                plt.savefig(f'/plots/gradientplot_{act}.png')
+            plt.clf()
+            plt.close()
+            data.clear()
+            activation.clear()
+            gradient.clear()
 
 def main():
 
     #define param here
     batch_size = 128
-    n_epochs = 10
+    n_epochs = 1
     lr = 0.001
 
     #load data
@@ -236,8 +299,8 @@ def main():
     writer = SummaryWriter
     act = ActivationFunction(lr,writer)
     #act.compare_activation_functions(2,train,test)
-    act.plot_activations(n_epochs,train,test)
-
+    act.plots(n_epochs,train,test,'gradient')
+        
 if __name__== "__main__":
 
     main()
