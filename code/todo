@@ -1,8 +1,13 @@
 
-länge gradienten plotten
+mittelwerte der mittelwerte berechnen und auf testset anwenden
 
-normalisierung auf ganze train dann anwenden auf test
+versuchsplan
 
+tanh weight init ändern
 
+linear layer fixen
 
-2. mittelwerte der mittelwerte berechnen und auf testset anwenden
+aktivierungen davor oder danach
+
+aktivierungen pro epoche
+

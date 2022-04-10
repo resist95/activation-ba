@@ -58,28 +58,39 @@ train_x,train_y,test_x,test_y = i.get_data()
 train_data = IntelDataset_random_mean(test_x,test_y,train=True)
 train_load = torch.utils.data.DataLoader(dataset=train_data,batch_size=100,shuffle=True)
 
-#print(a)
-
-#print (a)
-
-
 class Cifar10Dataset():
-    def __init__(self,images,labels):
+    def __init__(self,images,labels,train=False):
         self.images = images
         self.labels = labels
+        self.train = train
         self.transform = T.Compose([
             T.ToPILImage(),
             T.RandomHorizontalFlip(),
             T.ToTensor()
         ])
     
+    def set_mean_std(self,mean,std):
+        self.mean = mean
+        self.std = std
+    
+    def get_mean_std(self):
+        return self.mean,self.std
+
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self,idx):
-        if self.transform:
-            images = self.transform(self.images[idx])
-            normalize = T.Normalize( [0.49139968, 0.48215841, 0.44653091],[0.2469767,  0.24336646, 0.26144247])
+        images = self.transform(self.images[idx])
+        if self.train:
+            mean = torch.mean(images,[1,2])
+            std = torch.std(images,[1,2])
+            normalize = T.Normalize(mean,std)
+            norm = normalize(images)
+            images = norm
+            self.mean += mean
+            self.std += std
+        else:
+            normalize = T.Normalize(self.std,self.mean)
             norm = normalize(images)
             images = norm
         return (images,self.labels[idx])
@@ -87,21 +98,35 @@ class Cifar10Dataset():
 
 class MnistDataset():
 
-    def __init__(self, images,labels):
+    def __init__(self, images,labels,train = False):
         self.images = images
         self.labels = labels
+        self.train = train
         self.transform = T.Compose([
             T.ToTensor()
         ])
     
+    def set_mean_std(self,mean,std):
+        self.mean = mean
+        self.std = std
+    
+    def get_mean_std(self):
+        return self.mean,self.std
+
     def __len__(self):
         return len(self.images)
     
     def __getitem__(self,idx):
-        if self.transform:
-            images = self.transform(self.images[idx])
-            mean = 0.13066047627384286
-            std = 0.3081078038564622
+        images = self.transform(self.images[idx])
+        if self.train :
+            mean = images.mean()
+            std = images.std()
+            normalize = T.Normalize(mean,std)
+            norm = normalize(images)
+            images = norm
+            self.mean += mean
+            self.std += std
+        else:
             normalize = T.Normalize(mean,std)
             norm = normalize(images)
             images = norm

@@ -128,8 +128,6 @@ for epoch in range(n_epochs):
     means, stds = train()
     means /= len(train_l)
     stds /= len(train_l)
-    print(means)
-    print(stds)
     test(means,stds)
         
 
