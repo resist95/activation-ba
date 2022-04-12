@@ -8,10 +8,18 @@ import torch.utils.data as data
 import math
 import sys
 import os
+from collections import OrderedDict
+from typing import Dict, Callable
+
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
+
+from datasets.datasets import IntelDataset
+from datasets.data import Intel
+from models.intel_models import CNN_INTEL
 
 from datasets.datasets import MnistDataset
 from datasets.data import MNIST
+from models.mnist_models import CNN_MNIST_ACT
 
 sns.set()
 
@@ -29,84 +37,6 @@ x = current_time.replace(':','_')
 #device setup
 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-
-class CNN_MNIST_ACT(nn.Module):
-    def __init__(self,act_fn,name):
-        super(CNN_MNIST_ACT,self).__init__()
-        self.act_fn = act_fn
-        self.act_fn_name = name
-        self.layers = self._make_layers(self.act_fn)
-
-        self.fc1 = nn.Linear(2704,128)
-        self.fc2 = nn.Linear(128,10)
-        self.soft = nn.Softmax(dim=1)
-        self.dropout = nn.Dropout(0.25)
-        
-        if self.act_fn_name == 'tanh':
-            for m in self.modules():
-                if isinstance(m, nn.Conv2d):
-                    nn.init.xavier_normal_(m.weight)
-                elif isinstance(m, (nn.BatchNorm2d)):
-                    nn.init.constant_(m.weight,1)
-                    nn.init.constant_(m.bias, 0)
-        else:            
-            for m in self.modules():
-                if isinstance(m, nn.Conv2d):
-                    nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-                elif isinstance(m, (nn.BatchNorm2d)):
-                    nn.init.constant_(m.weight, 1)
-                    nn.init.constant_(m.bias, 0)
-        
-    def _make_layers(self,act_fn):
-        model = nn.Sequential(
-            nn.Conv2d(1,8,3,1),
-            act_fn(),
-            nn.BatchNorm2d(8),
-            
-            
-            nn.MaxPool2d(2,2),
-
-            nn.Conv2d(8,16,3,1,1),
-            act_fn(),
-            nn.BatchNorm2d(16),
-            nn.Dropout(0.25),
-            
-        )
-        return model
-    
-    def forward(self,x):
-        out = self.layers(x)
-        out = out.reshape(out.shape[0],-1)
-        if(self.act_fn_name == 'relu'):
-            out = F.relu(self.fc1(out))
-            out = self.dropout(out)
-            out = self.fc2(out)
-            out = self.soft(out)
-            return out
-        elif(self.act_fn_name == 'tanh'):
-            out = F.tanh(self.fc1(out))
-            out = self.dropout(out)
-            out = self.fc2(out)
-            out = self.soft(out)
-            return out
-        elif(self.act_fn_name == 'swish'):
-            out = F.silu(self.fc1(out))
-            out = self.dropout(out)
-            out = self.fc2(out)
-            out = self.soft(out)
-            return out
-        elif(self.act_fn_name == 'leakyrelu'):
-            out = F.leaky_relu(self.fc1(out))
-            out = self.dropout(out)
-            out = self.fc2(out)
-            out = self.soft(out)
-            return out
-        elif(self.act_fn_name == 'gelu'):
-            out = F.gelu(self.fc1(out))
-            out = self.dropout(out)
-            out = self.fc2(out)
-            out = self.soft(out)            
-            return out
 
 activation = {}
 step_conv = 1
@@ -151,20 +81,21 @@ def hook_activation(model, input,output):
         activation[f'softmax_{step_activation}'] = output.view(-1).detach().numpy()
 
 gradient = {}
-def print_layers(net,param,direction):
-    #print(gradient)
+activation = {}
+def print_layers(net,param):
     global step_conv
     global step_linear
     if param == 'activation':
         for name, layer in net.named_children():
             if isinstance(layer,nn.Sequential):
-                print_layers(layer,param,direction)
+                print_layers(layer,param)
             else:
                layer.register_forward_hook(hook_activation)
+
     elif param == 'gradient':
         for name, layer in net.named_children():
             if isinstance(layer,nn.Sequential):
-                print_layers(layer,param,direction)
+                print_layers(layer,param)
             else:
                 for name, params in layer.named_parameters(): 
                     if isinstance (layer, nn.Linear):
@@ -176,6 +107,13 @@ def print_layers(net,param,direction):
                             gradient[f'conv_{step_conv}'] = params.grad.view(-1).detach().numpy()
                             step_conv += 1
 
+def remove_all_forward_hooks(model):
+    for name,layer in model.named_children():
+        for n, child in layer._modules.items():
+            if child is not None:
+                if hasattr(child,"_forward_hooks"):
+                    child._forward_hooks  = OrderedDict()
+                remove_all_forward_hooks(child)
 
 class ActivationFunction:
     def __init__(self,lr,writer):
@@ -245,10 +183,10 @@ class ActivationFunction:
 
     def compare_activation_functions(self,n_epochs,train,test):
         for i, act in enumerate(self.act_fn_name):
-            self.model = CNN_MNIST_ACT(self.act_fn_by_name[act],act)
-            self.optimizer = optim.SGD(self.model.parameters(),lr=self.lr,momentum=0.9)
+            self.model = CNN_INTEL(self.act_fn_by_name[act],act)
+            self.optimizer = optim.Adam(self.model.parameters(),lr=self.lr)
             self.model.to(device)
-            self.writer = SummaryWriter(f'runs/mnist_activation_{act}_{x}')
+            self.writer = SummaryWriter(f'runs/intel_activation_{act}_{x}')
             
             for epoch in range(n_epochs):
                 print(f'Epoch: [{epoch+1} / {n_epochs}] current activation function: {act}')
@@ -256,13 +194,12 @@ class ActivationFunction:
 
                 self.test(epoch,test)
     
-    def plots(self,n_epochs,train,test,param,direction):
-        global step
-
+    def plots(self,n_epochs,train,test,param):
         for act in self.act_fn_name:
             self.model = CNN_MNIST_ACT(self.act_fn_by_name[act],act)
-            self.optimizer = optim.SGD(self.model.parameters(),lr=self.lr,momentum=0.9)
+            self.optimizer = optim.Adam(self.model.parameters(),lr=self.lr)
             self.model.to(device)
+
             for epoch in range( n_epochs):
                 print(f'Epoch: [{epoch+1} / {n_epochs}] current activation function: {act}')
                 self.model.train()
@@ -277,81 +214,49 @@ class ActivationFunction:
                     loss = self.criterion(scores,targets)
                     loss.backward()
                     self.optimizer.step()
-
+                if param == 'gradient':
+                    print_layers(self.model,param)
                 data,targets = next(iter(test))
-                print_layers(self.model,param,direction)
                 with torch.no_grad():
-
+                    if param == 'activation':
+                        print_layers(self.model,param)
                     data.to(device)
                     targets.to(device)
                     scores = self.model(data)
-
-                rows = len(activation)
-                columns = 1
                 data = []
                 names = []
-
-                for key in activation.keys():
-                    data.append(activation[key])
-                    names.append(key)
-
+                if param == 'activation':
+                    rows = len(activation)
+                    for key in activation.keys():
+                        data.append(activation[key])
+                        names.append(key)
+                else:
+                    rows = len(gradient)
+                    for key in gradient.keys():
+                        data.append(gradient[key])
+                        names.append(key)
+                columns = 1            
                 fig, ax = plt.subplots(rows,columns, figsize=(columns*10,rows*2.5),squeeze=False)
                 lv = 0
                 for i in range(rows):
                     for l in range(columns):
-                        ax[i][l].hist(x=data[lv], bins=100, color='C0', density=True)
+                        ax[i][l].hist(x=data[lv], bins='auto', color='C0', density=True)
                         ax[i][l].set_title(label = f"Layer {names[lv]}")
                     lv+=1
-        
-                fig.suptitle(f"Activation distribution for activation function {act}", fontsize=14)
-                fig.subplots_adjust(hspace=0.4, wspace=0.4)
-                plt.savefig(f'activation_{act}_{epoch}.png')
-                plt.show()
-                clear_everything(fig)
+
+                if param == 'activation':
+                    fig.suptitle(f"Activation distribution for activation function {act}", fontsize=14)
+                    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+                    plt.savefig(f'activation_{act}.png')
+                elif param == 'gradient':
+                    fig.suptitle(f"Gradient distribution for activation function {act}", fontsize=14)
+                    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+                    plt.savefig(f'gradientplot_{act}_{epoch}.png')
+                remove_all_forward_hooks(self.model)
+                clear_everything()
     
-    def plot_gradient(self,n_epochs,train,param,direction):
-        global step
-        for act in self.act_fn_name:
-            for epoch in range(n_epochs):
-                print(f'Epoch: {epoch} Act: {act}')
-                self.model = CNN_MNIST_ACT(self.act_fn_by_name[act],act)
-                self.optimizer = optim.SGD(self.model.parameters(),lr=self.lr,momentum=0.9)
-                for idx,(img,targets) in enumerate(train):
-                    self.model.to(device)
-                    self.model.zero_grad()
-
-                    img.to(device)
-                    targets.to(device)
-
-                    scores = self.model(img)
-                    
-                    loss = self.criterion(scores,targets)
-                    loss.backward()
-                print_layers(self.model,param,direction)
-                rows = len(gradient)
-                columns = 1
-                data = []
-                names = []
-
-                for key in gradient.keys():
-                    data.append(gradient[key])
-                    names.append(key)
-
-                fig, ax = plt.subplots(rows,columns, figsize=(columns*10,rows*2.5),squeeze=False)
-                lv = 0
-                for i in range(rows):
-                    for l in range(columns):
-                        ax[i][l].hist(x=data[lv], bins=100, color='C0', density=True)
-                        ax[i][l].set_title(label = f"Layer {names[lv]}")
-                    lv+=1
-        
-                fig.suptitle(f"Gradient distribution for activation function {act}", fontsize=14)
-                fig.subplots_adjust(hspace=0.4, wspace=0.4)
-                plt.savefig(f'gradientplot_{act}_{epoch}.png')
-                
-                clear_everything(fig)
-
-def clear_everything(fig):
+    
+def clear_everything():
     global step_conv
     global step_linear
     global step_batch
@@ -362,7 +267,8 @@ def clear_everything(fig):
     step_batch = 1
     step_pool = 1
     step_activation = 1
-    fig.clf()
+    plt.clf()
+    plt.cla()
     plt.close()
     activation.clear()
     gradient.clear()
@@ -370,18 +276,18 @@ def clear_everything(fig):
 def main():
 
     #define param here
-    batch_size = 128
-    n_epochs = 30
-    lr = 0.001
+    batch_size = 256
+    n_epochs = 20
+    lr = 0.0001
 
     #load data
     print('Loading Data... \n')
-    data = MNIST()
+    data = Intel()
 
     print('Done.')
 
     #load into dataloader
-    dataset = MnistDataset
+    dataset = IntelDataset
 
     print('Loading train and test samples into DataLoader... \n')
     X_train,y_train,X_test,y_test = data.get_data()
@@ -393,9 +299,8 @@ def main():
     #load activation function class
     writer = SummaryWriter
     act = ActivationFunction(lr,writer)
-    #act.compare_activation_functions(2,train,test)
-    #act.plot_gradient(30,train,'gradient','backward')
-    act.plots(n_epochs,train,test,'activation','forward')
+    act.compare_activation_functions(n_epochs,train,test)
+    #act.plots(n_epochs,train,test,'gradient')
         
 if __name__== "__main__":
 

@@ -5,7 +5,11 @@ from sympy import Ci
 import torch
 import torchvision.transforms as T
 from torch.utils.data import Dataset
+import sys
+import os
 
+sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
+from datasets.data import Intel
 
 class Caltech101Dataset(Dataset):
 
@@ -40,17 +44,20 @@ def main():
 
     for a,b in train_data:
         print(torch.var(a))
-    #dataiter = iter(train_data)
-    #a,b = next(dataiter)
-    #print(a)
+    dataiter = iter(train_data)
+    a,b = next(dataiter)
+    print(a)
 
-    #print (a)
+    print (a)
+
 class IntelDataset(Dataset):
 
     def __init__(self,images,labels):
-        self.images = np.array(images)
+        self.images = np.reshape(images,(len(images),150,150,3))
         self.labels = labels
         self.transform = T.Compose([
+        T.ToPILImage(),
+        T.RandomHorizontalFlip(),
         T.ToTensor()
     ])
 
@@ -59,17 +66,12 @@ class IntelDataset(Dataset):
     
     def __getitem__(self,idx):
         if self.transform:
-            self.images /= 255.0
             images = self.transform(self.images[idx])
-            print(self.images[idx])
-            images = torch.transpose(images,0,1)
             mean = [0.43017039, 0.45747317, 0.45384368]
             std = [0.26868677, 0.26718564, 0.29773091]
             normalize = T.Normalize(mean,std)
             norm = normalize(images)
             images = norm
-            print(f'torch min: {torch.min(images)}')
-            print(f'torch max: {torch.max(images)}')
         return (images,self.labels[idx])
 
 

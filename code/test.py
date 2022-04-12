@@ -6,7 +6,7 @@ from datetime import datetime
 
 from context import Intel
 from context import IntelDataset_random_mean
-from cnn import CNN_INTEL
+from context import CNN_INTEL
 
 import torch.nn as nn
 import torch.optim as optim
@@ -51,13 +51,13 @@ lr = 0.003
 cif_nn = CNN_INTEL()
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(cif_nn.parameters(),lr=lr,momentum=0.9)
+optimizer = optim.Adam(cif_nn.parameters())
 
 models = cif_nn.to(device)
 
 step_train = 0
 step_test = 0
-n_epochs = 2
+n_epochs = 10
 
 # Define Scheduler
 scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,[10,20]
@@ -85,29 +85,25 @@ def train():
     means = torch.zeros(3)
     stds = torch.zeros(3)
     for idx,(data,targets) in enumerate(train_l):
-        
-        m, s = trains.get_mean_std()
-        m /= data.size(0)
-        s /= data.size(0)
-        means += m
-        stds += s
         data = data.to(device=device)
         targets = targets.to(device=device)
         accs, losses = evaluate(data,targets,train=True)
         loss += losses * data.size(0)
         acc += accs * data.size(0)
+        trains.set_mean_std(len(data))
+        trains.reset_mean_std()
     
     mean_acc = acc / len(train_l.dataset)
     mean_loss = loss / len(train_l.dataset)
     writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
     writer.add_scalar('Mean Loss Train',mean_loss,epoch)
-    return means,stds
     
-def test(mean,std):
+def test():
     acc = 0.0
     loss = 0.0
 
-    tests.set_mean_std(mean,std)
+    mean,std = trains.get_mean_std()
+    tests.set_mean_std_test(mean,std)
     with torch.no_grad():
         for (data,targets) in test_l:
             data = data.to(device=device)
@@ -118,16 +114,14 @@ def test(mean,std):
             acc += accs * data.size(0)
     mean_acc = acc / len(test_l.dataset)
     mean_loss = loss / len(test_l.dataset)
-    writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
-    writer.add_scalar('Mean Loss Train',mean_loss,epoch)
+    writer.add_scalar('Mean Accuracy Test',mean_acc,epoch)
+    writer.add_scalar('Mean Loss Test',mean_loss,epoch)
 
 for epoch in range(n_epochs):
     means = torch.zeros(3)
     stds = torch.zeros(3)
     print(epoch)
-    means, stds = train()
-    means /= len(train_l)
-    stds /= len(train_l)
-    test(means,stds)
+    train()
+    test()
         
 
