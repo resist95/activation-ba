@@ -53,11 +53,9 @@ def main():
 class IntelDataset(Dataset):
 
     def __init__(self,images,labels):
-        self.images = np.reshape(images,(len(images),150,150,3))
+        self.images = images
         self.labels = labels
         self.transform = T.Compose([
-        T.ToPILImage(),
-        T.RandomHorizontalFlip(),
         T.ToTensor()
     ])
 
@@ -67,21 +65,21 @@ class IntelDataset(Dataset):
     def __getitem__(self,idx):
         if self.transform:
             images = self.transform(self.images[idx])
-            mean = [0.43017039, 0.45747317, 0.45384368]
-            std = [0.26868677, 0.26718564, 0.29773091]
-            normalize = T.Normalize(mean,std)
+            images = images.permute(1,0,2)
+            normalize = T.Normalize((self.mean),(self.std))
             norm = normalize(images)
             images = norm
         return (images,self.labels[idx])
-
+    
+    def set_mean_std(self,mean,std):
+        self.mean = mean
+        self.std = std
 
 class Cifar10Dataset():
     def __init__(self,images,labels):
         self.images = images
         self.labels = labels
         self.transform = T.Compose([
-            T.ToPILImage(),
-            T.RandomHorizontalFlip(),
             T.ToTensor()
         ])
     
@@ -91,10 +89,15 @@ class Cifar10Dataset():
     def __getitem__(self,idx):
         if self.transform:
             images = self.transform(self.images[idx])
-            normalize = T.Normalize( [0.49139968, 0.48215841, 0.44653091],[0.2469767,  0.24336646, 0.26144247])
+            images = images.permute(1,0,2)
+            normalize = T.Normalize((self.mean),(self.std))
             norm = normalize(images)
             images = norm
         return (images,self.labels[idx])
+    
+    def set_mean_std(self,mean,std):
+        self.mean = mean
+        self.std = std
 
 
 class MnistDataset():
@@ -103,6 +106,7 @@ class MnistDataset():
         self.images = images
         self.labels = labels
         self.transform = T.Compose([
+            T.ToPILImage(),
             T.ToTensor()
         ])
     
@@ -112,11 +116,12 @@ class MnistDataset():
     def __getitem__(self,idx):
         if self.transform:
             images = self.transform(self.images[idx])
+            
             mean = 0.13066047627384286
             std = 0.3081078038564622
-            normalize = T.Normalize(mean,std)
-            norm = normalize(images)
-            images = norm
+            #normalize = T.Normalize(mean,std)
+            #norm = normalize(images)
+            #images = norm
         return (images,self.labels[idx])
 
 

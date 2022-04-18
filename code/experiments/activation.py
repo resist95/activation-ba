@@ -21,6 +21,10 @@ from datasets.datasets import MnistDataset
 from datasets.data import MNIST
 from models.mnist_models import CNN_MNIST_ACT
 
+
+from datasets.datasets import Cifar10Dataset
+from datasets.data import CIFAR10
+from models.cifar_models import CNN_CIFAR_COLAB
 sns.set()
 
 import torch
@@ -34,9 +38,10 @@ current_time = now.strftime("%H:%M:%S")
 x = current_time.replace(':','_')
 
 
-#device setup
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
+#device setup 
+device =  'cuda:0' if torch.cuda.is_available() else 'cpu'
+if device == 'cuda:0':
+    print('running on gpu')
 
 activation = {}
 step_conv = 1
@@ -183,7 +188,7 @@ class ActivationFunction:
 
     def compare_activation_functions(self,n_epochs,train,test):
         for i, act in enumerate(self.act_fn_name):
-            self.model = CNN_INTEL(self.act_fn_by_name[act],act)
+            self.model = CNN_CIFAR_COLAB(self.act_fn_by_name[act],act)
             self.optimizer = optim.Adam(self.model.parameters(),lr=self.lr)
             self.model.to(device)
             self.writer = SummaryWriter(f'runs/intel_activation_{act}_{x}')

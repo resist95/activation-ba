@@ -1,73 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from pandas import lreshape
+import seaborn as sns
+from sklearn.utils import shuffle
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.utils.data as data
+import math
+import sys
+import os
+from collections import OrderedDict
+from typing import Dict, Callable
+
+sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
+
+from datasets.datasets import IntelDataset
+from datasets.data import Intel
+from models.intel_models import CNN_INTEL
+
+from datasets.datasets import MnistDataset
+from datasets.data import MNIST
+from models.mnist_models import CNN_MNIST_ACT
+
+
+from datasets.datasets import Cifar10Dataset
+from datasets.data import CIFAR10
+from models.cifar_models import CNN_CIFAR
+sns.set()
 
 import torch
-import numpy as np
+
+import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
-
-from context import Intel
-from context import IntelDataset_random_mean
-from context import CNN_INTEL
-
-import torch.nn as nn
-import torch.optim as optim
-
-#Set seed for repoducability
-def set_seed(seed):
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-
-torch.backends.cudnn.determinstic = True
-torch.backends.cudnn.benchmark = False
-
-
-#Setup device
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-print(f'Running CNN on {device}')
-
 now = datetime.now()
 
-#Setup Tensorboard
 current_time = now.strftime("%H:%M:%S")
 x = current_time.replace(':','_')
 
-writer = SummaryWriter(f'runs/intel_{x}')
+
+#device setup 
+device =  'cuda:0' if torch.cuda.is_available() else 'cpu'
+if device == 'cuda:0':
+    print('running on gpu')
+
+writer = SummaryWriter()
+#Params 0.1, 0.03, 0.001, 0.0003
+lr = 0.001
+
+epochs = 100
+batch_size = 64
 
 
-intel = Intel()
-inte = IntelDataset_random_mean
-
-X_train,y_train,X_test,y_test = intel.get_data()
-
-trains = inte(X_train,y_train,train=True)
-tests = inte(X_test,y_test,train=False)
-train_l = torch.utils.data.DataLoader(dataset=trains,batch_size=256,shuffle=True,num_workers = 0)
-test_l = torch.utils.data.DataLoader(dataset=tests,batch_size=256,shuffle=False, num_workers = 0)
-
-lr = 0.003
-
-cif_nn = CNN_INTEL()
+#Data
+dat = Intel()
+m,s = dat.get_mean_std()
+#dataset
+ds = IntelDataset
+ds.set_mean_std(ds,mean=m,std=s)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(cif_nn.parameters())
+#get data for dl
+X_train,y_train = dat.get_data('train')
+X_val,y_val = dat.get_data('val')
+train = ds(X_train,y_train)
+test = ds(X_val,y_val)
 
-models = cif_nn.to(device)
+trains = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size,shuffle=True)
+tests = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size,shuffle=False)
 
-step_train = 0
-step_test = 0
-n_epochs = 10
-
-# Define Scheduler
-scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,[10,20]
-)
 
 def evaluate(X, y, train=False):
     if train:
-        models.zero_grad()
-        
-    scores = models(X)
+        model.zero_grad()
+    scores = model(X)
     matches = [torch.argmax(i) == torch.argmax(j) for i,j in zip(scores,y)]
     acc = matches.count(True)/len(matches)
 
@@ -77,51 +83,51 @@ def evaluate(X, y, train=False):
         optimizer.step()
     return acc,loss.item()
 
-def train():
-    models.train()
+def train(epoch,train):
+    model.train()
     acc = 0.0
     loss = 0.0
-    
-    means = torch.zeros(3)
-    stds = torch.zeros(3)
-    for idx,(data,targets) in enumerate(train_l):
+    for idx,(data,targets) in enumerate(train):
+        
         data = data.to(device=device)
         targets = targets.to(device=device)
+        
         accs, losses = evaluate(data,targets,train=True)
         loss += losses * data.size(0)
         acc += accs * data.size(0)
-        trains.set_mean_std(len(data))
-        trains.reset_mean_std()
     
-    mean_acc = acc / len(train_l.dataset)
-    mean_loss = loss / len(train_l.dataset)
+    mean_acc = acc / len(train.dataset)
+    mean_loss = loss / len(train.dataset)
     writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
     writer.add_scalar('Mean Loss Train',mean_loss,epoch)
-    
-def test():
+    return mean_acc, mean_loss
+def test(epoch,test):
+    model.eval()
     acc = 0.0
     loss = 0.0
-
-    mean,std = trains.get_mean_std()
-    tests.set_mean_std_test(mean,std)
     with torch.no_grad():
-        for (data,targets) in test_l:
+        for (data,targets) in test:
             data = data.to(device=device)
             targets = targets.to(device=device)
 
             accs, losses = evaluate(data,targets,train=False)
             loss += losses * data.size(0)
             acc += accs * data.size(0)
-    mean_acc = acc / len(test_l.dataset)
-    mean_loss = loss / len(test_l.dataset)
+    mean_acc = acc / len(test.dataset)
+    mean_loss = loss / len(test.dataset)
     writer.add_scalar('Mean Accuracy Test',mean_acc,epoch)
     writer.add_scalar('Mean Loss Test',mean_loss,epoch)
+    return mean_acc, mean_loss
 
-for epoch in range(n_epochs):
-    means = torch.zeros(3)
-    stds = torch.zeros(3)
-    print(epoch)
-    train()
-    test()
+
+model = CNN_INTEL()
+optimizer = optim.Adam(model.parameters(),lr=lr)
+model.to(device)
+writer = SummaryWriter(f'runs/intel_96_96_128_256fc_125lr{lr}kernel3_3_3_3_s_3_1_1_1{x}')
         
+for epoch in range(epochs):
+    print(f'Epoch: [{epoch+1} / {epochs}]')
+    train_acc,train_loss = train(epoch,trains)
 
+    test_acc,test_loss = test(epoch,tests)
+    print(f'Test acc: {test_acc} Test loss: {test_loss} Train acc: {train_acc} Train loss: {train_loss}')
