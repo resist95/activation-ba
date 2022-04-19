@@ -1037,7 +1037,7 @@ import torch.nn.functional as F
         return x'''
 #Epoch: [17 / 100]
 #Test acc: 0.7709298183113644 Test loss: 0.7119160963017122 Train acc: 0.8317449006858466 Train loss: 0.470395382375359
-class CNN_INTEL(nn.Module):
+'''class CNN_INTEL(nn.Module):
     def __init__(self):
         super(CNN_INTEL,self).__init__()
         self.conv1 = nn.Conv2d(3,32,5,3)
@@ -1062,6 +1062,204 @@ class CNN_INTEL(nn.Module):
         x = F.relu(self.conv7(x))
         x = x.reshape(x.shape[0],-1)
         x = self.fc1(x)
+
+        return x'''
+#Epoch: [1 / 100]
+#Test acc: 0.4934093338083363 Test loss: 1.2421596029965458 Train acc: 0.39618776164603187 Train loss: 1.44042246135256
+#Epoch: [2 / 100]
+#Test acc: 0.5365158532240827 Test loss: 1.1064679396766997 Train acc: 0.5051215819007749 Train loss: 1.1922223927054985
+#Epoch: [3 / 100]
+#Test acc: 0.6184538653366584 Test loss: 1.0056863229994357 Train acc: 0.565689854814287 Train loss: 1.0589804635576447
+#Epoch: [4 / 100]
+#Test acc: 0.6312789454934093 Test loss: 0.9223189332214068 Train acc: 0.6042575933018616 Train loss: 0.9709665517098538
+#Epoch: [5 / 100]
+#Test acc: 0.6298539365871036 Test loss: 0.9310262971953028 Train acc: 0.6295537543422107 Train loss: 0.921378518714464
+#Epoch: [6 / 100]
+#Test acc: 0.6636978981118632 Test loss: 0.8908214070814019 Train acc: 0.6415783379353345 Train loss: 0.8798588145470729
+#Epoch: [7 / 100]
+#Test acc: 0.6494478090488065 Test loss: 0.912554182812789 Train acc: 0.6577001870490781 Train loss: 0.8509591401549519
+#Epoch: [8 / 100]
+#Test acc: 0.6740292126825793 Test loss: 0.8582713370105604 Train acc: 0.6805023603812238 Train loss: 0.8161345218522753
+#Epoch: [9 / 100]
+#Test acc: 0.6854292839330246 Test loss: 0.8150926970980105 Train acc: 0.6987619132448561 Train loss: 0.7896209908262293
+#Epoch: [10 / 100]
+#Test acc: 0.6783042394014963 Test loss: 0.824751996589889 Train acc: 0.7139930524628129 Train loss: 0.7523572356391892
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,32,5,3)
+        self.conv2 = nn.Conv2d(32,64,3,1)
+        self.pool1 = nn.MaxPool2d((3,3),2)
+        self.conv3 = nn.Conv2d(64,128,5,1)
+        self.conv4 = nn.Conv2d(128,32,5,1)
+        self.conv5 = nn.Conv2d(32,64,3,1,1)
+        self.conv6 = nn.Conv2d(64,128,5,1)
+        self.conv7 = nn.Conv2d(128,32,3,1)
+        self.fc1 = nn.Linear(34848,6)
+    
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = F.relu(self.conv7(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.fc1(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,32,5,3)
+        self.conv2 = nn.Conv2d(32,64,3,1)
+        self.pool1 = nn.MaxPool2d((3,3),2)
+        self.conv3 = nn.Conv2d(64,128,3,1)
+        self.conv4 = nn.Conv2d(128,256,5,2)
+        self.conv5 = nn.Conv2d(256,128,5,1)
+        self.conv6 = nn.Conv2d(128,64,3,1)
+        self.conv7 = nn.Conv2d(64,32,3,1)
+        self.conv8 = nn.Conv2d(32,32,3,1)
+        self.fc1 = nn.Linear(3872,6)
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = F.relu(self.conv7(x))
+        x = F.relu(self.conv8(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.fc1(x)
+
+        return x'''
+
+#Epoch: [1 / 100]
+#Test acc: 0.5190594941218383 Test loss: 1.213155750104462 Train acc: 0.42620468513405185 Train loss: 1.416445011833746
+#Epoch: [2 / 100]
+#Test acc: 0.5678660491628073 Test loss: 1.0947667933609897 Train acc: 0.5423532555446691 Train loss: 1.1693293084322953
+#Epoch: [3 / 100]
+#Test acc: 0.6245101531884574 Test loss: 0.9791072261736874 Train acc: 0.5952614233544135 Train loss: 1.0446896945823687
+#Epoch: [4 / 100]
+#Test acc: 0.6113288208051301 Test loss: 0.9830377220362094 Train acc: 0.6256346308007482 Train loss: 0.9652951572525089
+#Epoch: [5 / 100]
+#T#est acc: 0.6291414321339508 Test loss: 0.9378651089370739 Train acc: 0.6489712300703661 Train loss: 0.9084167735004092
+#Epoch: [6 / 100]
+#Test acc: 0.6811542572141076 Test loss: 0.8528524674018887 Train acc: 0.6767613788189186 Train loss: 0.8471029446896223
+#Epoch: [7 / 100]
+#Test acc: 0.6779479871749199 Test loss: 0.8568617804088416 Train acc: 0.6919034470472967 Train loss: 0.8095648893033119
+#Epoch: [8 / 100]
+#Test acc: 0.6907730673316709 Test loss: 0.8526070060020442 Train acc: 0.7076690122027256 Train loss: 0.7637821572580412
+#Epoch: [9 / 100]
+#Test acc: 0.6921980762379765 Test loss: 0.8389881689547345 Train acc: 0.7303821145452926 Train loss: 0.7278572116453592
+#Epoch: [10 / 100]
+#Test acc: 0.7035981474884218 Test loss: 0.8457395139351394 Train acc: 0.7506012291796562 Train loss: 0.6788168014877085
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,32,5,3)
+        self.conv2 = nn.Conv2d(32,64,3,1)
+        self.conv3 = nn.Conv2d(64,128,3,1)
+        self.conv4 = nn.Conv2d(128,256,5,2)
+        self.conv5 = nn.Conv2d(256,128,5,1)
+        self.conv6 = nn.Conv2d(128,64,3,1)
+        self.conv7 = nn.Conv2d(64,32,3,1)
+        self.conv8 = nn.Conv2d(32,64,3,1)
+        self.conv9 = nn.Conv2d(64,128,3,1)
+        self.conv10 = nn.Conv2d(128,256,3,1)
+        self.conv11 = nn.Conv2d(256,128,3,1)
+        self.conv12 = nn.Conv2d(128,64,3,1)
+        self.fc1 = nn.Linear(576,6)
+        
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = F.relu(self.conv7(x))
+        x = F.relu(self.conv8(x))
+        x = F.relu(self.conv9(x))
+        x = F.relu(self.conv10(x))
+        x = F.relu(self.conv11(x))
+        x = F.relu(self.conv12(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.fc1(x)
+
+        return x'''
+#Epoch: [3 / 100]
+#Test acc: 0.6672604203776273 Test loss: 0.880075668234636 Train acc: 0.685401264808052 Train loss: 0.8318441840791688
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3)
+        self.conv2 = nn.Conv2d(96,96,3,1)
+
+        self.fc1 = nn.Linear(212064,120)
+        self.fc2 = nn.Linear(120,6)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+#Epoch: [4 / 100]
+#Test acc: 0.6024225151407196 Test loss: 1.0191574983061122 Train acc: 0.6709717644963036 Train loss: 0.8530624056185058
+#Epoch: [5 / 100]
+#Test acc: 0.7000356252226576 Test loss: 0.8845876580714137 Train acc: 0.8667497995902734 Train loss: 0.37757085952591385
+#Epoch: [6 / 100]
+#Test acc: 0.7242607766298539 Test loss: 0.7484628637136634 Train acc: 0.7671684332412934 Train loss: 0.6428477903957911
+#Epoch: [8 / 100]
+#Test acc: 0.7413608835055219 Test loss: 0.7621021571182509 Train acc: 0.8214126658947181 Train loss: 0.47565417717269076
+#Epoch: [10 / 100]
+#Test acc: 0.7467046669041681 Test loss: 0.729946799000686 Train acc: 0.8283602030818562 Train loss: 0.46808765640528427
+#Epoch: [11 / 100] conv 5 128
+#Test acc: 0.7548984681154257 Test loss: 0.6832327385597496 Train acc: 0.8493809566224281 Train loss: 0.40443381540581175
+#Epoch: [9 / 100] conv 5 256
+#Test acc: 0.7513359458496616 Test loss: 0.6893500075908123 Train acc: 0.810100650218224 Train loss: 0.5191839910349298
+class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3)
+        self.conv2 = nn.Conv2d(96,96,3,1)
+        self.conv3 = nn.Conv2d(96,128,3,2)
+        self.pool = nn.MaxPool2d((2,2),2)
+        self.conv4 = nn.Conv2d(128,64,3,1)
+        self.conv5 = nn.Conv2d(64,128,3,1)
+        self.fc1 = nn.Linear(12544,120)
+        self.fc2 = nn.Linear(120,6)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = self.pool(x)
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
 
         return x
 from torchsummary import summary

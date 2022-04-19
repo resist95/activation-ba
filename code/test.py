@@ -46,10 +46,9 @@ if device == 'cuda:0':
 
 writer = SummaryWriter()
 #Params 0.1, 0.03, 0.001, 0.0003
-lr = 0.001
-
+lr = 0.0003
 epochs = 100
-batch_size = 64
+batch_size = 32
 
 
 #Data
