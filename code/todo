@@ -1,55 +1,14 @@
 
-treppenfunktion
 
+test daten mit netzen überprüfen
 
-lr vergrößern lr dritteln 0.1 anfangen
+plots skalierung verbessern
 
+gradienten für alle klassen, datensätze plotten
 
-batchnorm,dropout raus
+gleiche für aktivierungen
 
-lr wichtigster parameter
+oszillierende lr anschaun
 
-auf zeit achten
+alle daten als trainingssatz für gradienten kontrollieren mit batch
 
-
-plots: aktivierung von menge bildern der einzelnen Klassen betrachten
-
-data augmentation raus
-
-scheduler raus
-
-optimizer/loss/batch size/ max epochen festlegen
-
-learn rate variieren pro aktivierungsfunktion
-
-validierungssplit festlegen
-
-lr bereich festlegen
-
-
-betrachten wir nur einen Kanal (z.B. Grauwerte). 
-Ein Bild besteht aus 3 x 3 Pixel. Dann kann ich die Pixel hintereinander 
-schreiben als einen 9-dimensionalen Vektor x = (x_1, …., x_9). 
-Wir haben 100 Bilder, die wir durch 9-dimensionale Vektoren repräsentieren. 
-
-Wenn wir standardisieren wollen, dann machen wir folgendes: 
-
-1.1.Berechne Mittelwert m_1 über alle 100 Pixelwerte x_1
-…
-1.9.Berechne Mittelwert m_9 über alle 100 Pixelwerte x_9
-
-2.1.Berechne Standardabweichung s_1 von allen 100 Pixelwerten x_1
-...
-2.9.Berechne Standardabweichung s_9 von allen 100 Pixelwerten x_9
-
-3.1.Standardisiere das erste Pixel mit z_1 = (x_1 - m_1) / s_1
-…
-3.9.Standardisiere das neunte Pixel mit z_9 = (x_9 - m_9) / s_9
-
-Die Standardisierung wird ganz zum Schluss durchgeführt, nachdem die 
-Bilder als Tensoren vorliegen, in deinem Fall mit Pixelwerten zwischen 0 und 1. 
-Die berechneten Mittelwerte und Standardabweichungen, verwendest du für die 
-Standardisierung der Training- und Testmenge. 
-
-Hast Du drei statt einem Kanal, dann lässt sich ein Bild als (9x3) = 27-dimensionaler Vektor darstellen. Das Prinzip ändert sich nicht. 
-Für die ganze Berechnung müsste es eigentlich eine Funktion geben, die das für Dich macht. 

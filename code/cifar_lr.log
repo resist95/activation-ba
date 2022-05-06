@@ -1,0 +1,81 @@
+batch_size: 128
+0.0007 - 0.0008
+Epoch: [9 / 10] [0.0001] : Test acc: 0.7338 Test loss: 0.7765326857464688
+Epoch: [8 / 10] [0.0002] : Test acc: 0.763 Test loss: 0.6907652031936695
+Epoch: [7 / 10] [0.0003] : Test acc: 0.7804 Test loss: 0.6565164986641671
+Epoch: [5 / 10] [0.0004] : Test acc: 0.7786 Test loss: 0.648483069179913
+Epoch: [5 / 10] [0.0005] : Test acc: 0.7726 Test loss: 0.6822929387121834
+Epoch: [5 / 10] [0.0006] : Test acc: 0.7926 Test loss: 0.6288503238125066
+Epoch: [6 / 10] [0.0007] : Test acc: 0.802 Test loss: 0.6243565662976541
+Epoch: [6 / 10] [0.0008] : Test acc: 0.7928 Test loss: 0.6488950424574392
+Epoch: [5 / 10] [0.0009] : Test acc: 0.7882 Test loss: 0.652992271239896
+
+Epoch: [5 / 10] [0.00065] : Test acc: 0.7938 Test loss: 0.6211460767968383
+Epoch: [6 / 10] [0.00066] : Test acc: 0.808 Test loss: 0.6042294804969599
+Epoch: [6 / 10] [0.00067] : Test acc: 0.7974 Test loss: 0.6402910594822329
+Epoch: [6 / 10] [0.00068] : Test acc: 0.8022 Test loss: 0.6062299967208703
+Epoch: [4 / 10] [0.00069] : Test acc: 0.7864 Test loss: 0.616150627756441
+Epoch: [7 / 10] [0.0007] : Test acc: 0.8124 Test loss: 0.6561859769038842
+Epoch: [5 / 10] [0.00071] : Test acc: 0.8018 Test loss: 0.5937465443273837
+Epoch: [4 / 10] [0.00072] : Test acc: 0.809 Test loss: 0.5810510570562013
+Epoch: [6 / 10] [0.00073] : Test acc: 0.8114 Test loss: 0.6007571871094304
+Epoch: [5 / 10] [0.00074] : Test acc: 0.7984 Test loss: 0.6102286797310675
+Epoch: [5 / 10] [0.00075] : Test acc: 0.806 Test loss: 0.5744376467073353
+Epoch: [5 / 10] [0.00076] : Test acc: 0.7942 Test loss: 0.6209061221891533
+Epoch: [6 / 10] [0.00077] : Test acc: 0.8056 Test loss: 0.6115011990489955
+Epoch: [5 / 10] [0.00078] : Test acc: 0.8046 Test loss: 0.6062732204472171
+Epoch: [5 / 10] [0.00079] : Test acc: 0.7956 Test loss: 0.6389357749018889
+Epoch: [5 / 10] [0.0008] : Test acc: 0.7984 Test loss: 0.6044601264613548
+
+
+batch_size: 64
+0.00035 - 0.0005
+Epoch: [8 / 10] [0.0001] : Test acc: 0.7648 Test loss: 0.6745133486871538
+Epoch: [8 / 10] [0.0002] : Test acc: 0.791 Test loss: 0.7059052242403773
+Epoch: [7 / 10] [0.0003] : Test acc: 0.8014 Test loss: 0.657869346508613
+Epoch: [7 / 10] [0.0004] : Test acc: 0.8182 Test loss: 0.6372482248170414
+Epoch: [7 / 10] [0.0005] : Test acc: 0.8054 Test loss: 0.6760570434033488
+Epoch: [6 / 10] [0.0006] : Test acc: 0.8064 Test loss: 0.6265823346661238
+Epoch: [5 / 10] [0.0007] : Test acc: 0.7936 Test loss: 0.654129149935917
+Epoch: [5 / 10] [0.0008] : Test acc: 0.791 Test loss: 0.6774756064095868
+Epoch: [5 / 10] [0.0009] : Test acc: 0.7874 Test loss: 0.6430825677761806
+
+
+0.000401 - 0.000409
+Epoch: [5 / 10] [0.00035] : Test acc: 0.7984 Test loss: 0.573574504032467
+Epoch: [5 / 10] [0.00036] : Test acc: 0.8098 Test loss: 0.5714669976947727
+Epoch: [8 / 10] [0.00037] : Test acc: 0.8142 Test loss: 0.7123996099214082
+Epoch: [5 / 10] [0.00038] : Test acc: 0.795 Test loss: 0.6075319260758135
+Epoch: [6 / 10] [0.00039] : Test acc: 0.7976 Test loss: 0.6157669642076187
+Epoch: [7 / 10] [0.00040] : Test acc: 0.8144 Test loss: 0.6289372883011702
+Epoch: [5 / 10] [0.00041] : Test acc: 0.7956 Test loss: 0.6201837427115316
+Epoch: [5 / 10] [0.00042] : Test acc: 0.8 Test loss: 0.5906245897482075
+Epoch: [6 / 10] [0.00043] : Test acc: 0.788 Test loss: 0.6621348357219434
+Epoch: [6 / 10] [0.00044] : Test acc: 0.8008 Test loss: 0.617258471783947
+Epoch: [4 / 10] [0.00045] : Test acc: 0.8036 Test loss: 0.5724601491101751
+Epoch: [6 / 10] [0.00046] : Test acc: 0.7972 Test loss: 0.6543462967807565
+Epoch: [7 / 10] [0.00047] : Test acc: 0.8102 Test loss: 0.6242949327475145
+Epoch: [4 / 10] [0.00048] : Test acc: 0.791 Test loss: 0.6221393839791126
+Epoch: [5 / 10] [0.00049] : Test acc: 0.8038 Test loss: 0.6236509308193837
+
+Epoch: [6 / 10] [0.000401] : Test acc: 0.7974 Test loss: 0.6385923880370914
+Epoch: [4 / 10] [0.000402] : Test acc: 0.7962 Test loss: 0.6250571583357141
+Epoch: [6 / 10] [0.000403] : Test acc: 0.8034 Test loss: 0.6342254072392605
+Epoch: [5 / 10] [0.000404] : Test acc: 0.7982 Test loss: 0.6077276206581221
+Epoch: [6 / 10] [0.000405] : Test acc: 0.8072 Test loss: 0.6120206907603671
+Epoch: [5 / 10] [0.000406] : Test acc: 0.793 Test loss: 0.634764430077879
+Epoch: [6 / 10] [0.000407] : Test acc: 0.8108 Test loss: 0.6296709727319693
+Epoch: [6 / 10] [0.000408] : Test acc: 0.8174 Test loss: 0.6102912389199362
+Epoch: [5 / 10] [0.000409] : Test acc: 0.7962 Test loss: 0.59615396240478
+
+batch_size: 32
+0.00025 - 0.00045
+Epoch: [9 / 10] [0.0001] : Test acc: 0.7816 Test loss: 0.7102412996250715
+Epoch: [6 / 10] [0.0002] : Test acc: 0.8014 Test loss: 0.6186519328629289
+Epoch: [5 / 10] [0.0003] : Test acc: 0.8068 Test loss: 0.5803280177954099
+Epoch: [5 / 10] [0.0004] : Test acc: 0.804 Test loss: 0.6390469241417711
+Epoch: [6 / 10] [0.0005] : Test acc: 0.81 Test loss: 0.644318458502465
+Epoch: [4 / 10] [0.0006] : Test acc: 0.7776 Test loss: 0.666533838812229
+Epoch: [4 / 10] [0.0007] : Test acc: 0.7984 Test loss: 0.615851171944619
+Epoch: [3 / 10] [0.0008] : Test acc: 0.7622 Test loss: 0.6853987157465766
+Epoch: [4 / 10] [0.0009] : Test acc: 0.773 Test loss: 0.6930804893960404

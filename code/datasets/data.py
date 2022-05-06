@@ -1,57 +1,41 @@
 
-from pkgutil import get_data
-from tabnanny import verbose
+# default dependencies
 import numpy as np
+import sys
 import os
 import glob
 import matplotlib.pyplot as plt
 import cv2 as cv
 import pickle
 import gzip
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
-from sklearn.preprocessing import LabelEncoder
 import torch
 
-        
-# INTEL Datensatz aus
-# Eigenschaften: 6 Kategorien aufgeteilt in train und test train 14034 Dateien 3000 test
-# Bildgroesse 150 x 150 x 3
-# 
-# Dateiformat nach extraktion Label,Data -> ndarray
 
-def train_validate_split(X_train,y_train):
-    X_t, y_t = shuffle(X_train,y_train)
-    X_tr, X_val, y_tr, y_val = train_test_split(X_t,y_t,test_size=0.2)
-    print(np.shape(X_tr))
-    print(np.shape(X_val))
-    return X_tr,y_tr,X_val,y_val
-
-def one_hot_encoding(train_labels,test_labels,num_classes):
-    lb = LabelEncoder()
-    train_labels = lb.fit_transform(train_labels)
-    test_labels = lb.fit_transform(test_labels)
-    train_label_ohc = []
-    test_label_ohc = []
-    for l in train_labels:
-            train_label_ohc.append(np.eye(num_classes)[l])
-    for l in test_labels:
-            test_label_ohc.append(np.eye(num_classes)[l])
-    return train_label_ohc,test_label_ohc
+sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
+#special dependencies
+from datasets.preprocessing import train_validate_split, one_hot_encoding,shuffle_train_data
+from sklearn.preprocessing import LabelEncoder
 
 def unpickle(file):
     with open(file, 'rb') as fo:
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
+
+# INTEL Datensatz aus
+# Eigenschaften: 6 Kategorien aufgeteilt in train und test train 14034 Dateien 3000 test
+# Bildgroesse 150 x 150 x 3
+# 
+# Dateiformat nach extraktion Label,Data -> ndarray
 class Intel():
     
-    def __init__(self):
+    def __init__(self,test_size,run):
         #Init des Dateipfads sowie laden der Daten
         self.path_to_dir = 'files/intel'
-        images, labels, test_images,test_labels = self.__load()
-        self.__prepare_data(images,labels,test_images,test_labels)
+        self.test_size = test_size
+        self.run = run
+        self.images, self.labels, self.test_images,self.test_labels = self.__load()
+    
                
     def __load(self):
         # Laden der Daten mithilfe von glob das alle
@@ -102,8 +86,13 @@ class Intel():
 
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,6)
-        X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb)
-
+        
+        if self.run == 'validate':
+            X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
+        elif self.run == 'test':
+            X_train,y_train = shuffle_train_data(train_data,train_lb)
+            X_val = 0 
+            y_val = 0
         self.dict_images = {'X_train':X_train,
                             'X_test': X_test,
                             'X_val': X_val,
@@ -140,7 +129,136 @@ class Intel():
         mean = means
         std =  stds
         return mean,std
-       
+    
+    def prepare_data(self):
+        self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
+
+    def prepare_data_grad(self):
+        train_labels = self.labels
+        train_images = self.images
+        dat = []
+        labels = []
+        counter = [0,0,0,0,0,0,0,0,0,0]
+        lb = LabelEncoder()
+        train_labels = lb.fit_transform(train_labels)
+        
+        X_train, y_train = shuffle_train_data(train_images,train_labels)
+        
+        for i,data in enumerate(X_train):
+            if y_train[i] == 0 and counter[0] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[0] += 1
+            elif y_train[i] == 1 and counter[1] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[1] += 1
+            elif y_train[i] == 2 and counter[2] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[2] += 1
+            elif y_train[i] == 3 and counter[3] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[3] += 1
+            elif y_train[i] == 4 and counter[4] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[4] += 1
+            elif y_train[i] == 5 and counter[5] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[5] += 1
+            elif y_train[i] == 6 and counter[6] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[6] += 1
+            elif y_train[i] == 7 and counter[7] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[7] += 1
+            elif y_train[i] == 8 and counter[8] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[8] += 1
+            elif y_train[i] == 9 and counter[9] < 50 :
+                dat.append(data)
+                labels.append(y_train[i])
+                counter[9] += 1
+        y_train, y_test = one_hot_encoding(labels,self.test_labels,10)
+
+        d = np.asarray(dat)
+        self.dict_images = {'X_train': d,
+                    'X_test' : self.test_images,
+                    }
+        self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
+
+    def prepare_data_act(self):
+        test_labels = self.test_labels
+        test_images = self.test_images
+        
+        train_labels = self.labels
+        train_images = self.images
+        dat = []
+        labels = []
+        counter = [0,0,0,0,0,0,0,0,0,0]
+        lb = LabelEncoder()
+        train_labels = lb.fit_transform(train_labels)
+        test_labels = lb.fit_transform(test_labels)
+        X_train, y_train = shuffle_train_data(train_images,train_labels)
+        
+        for i,data in enumerate(test_images):
+            if test_labels[i] == 0 and counter[0] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[0] += 1
+            elif test_labels[i] == 1 and counter[1] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[1] += 1
+            elif test_labels[i] == 2 and counter[2] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[2] += 1
+            elif test_labels[i] == 3 and counter[3] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[3] += 1
+            elif test_labels[i] == 4 and counter[4] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[4] += 1
+            elif test_labels[i] == 5 and counter[5] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[5] += 1
+            elif test_labels[i] == 6 and counter[6] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[6] += 1
+            elif test_labels[i] == 7 and counter[7] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[7] += 1
+            elif test_labels[i] == 8 and counter[8] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[8] += 1
+            elif test_labels[i] == 9 and counter[9] < 50 :
+                dat.append(data)
+                labels.append(test_labels[i])
+                counter[9] += 1
+        y_train, y_test = one_hot_encoding(train_labels,labels,10)
+
+        d = np.asarray(dat)
+        self.dict_images = {'X_train': X_train,
+                    'X_test' : d,
+                    }
+        self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
 
 
 # CIFAR10 Datensatz aus https://www.cs.toronto.edu/~kriz/cifar.html
@@ -155,12 +273,13 @@ class Intel():
 
 class CIFAR10():
 
-    def __init__(self):
+    def __init__(self,test_size,run):
+        self.test_size = test_size
+        self.run = run
         self.path_to_dir = 'files/cifar-10-batches-py'
         self.meta_data = unpickle(self.path_to_dir + "/batches.meta")
-        images, labels, test_images, test_labels = self.__load()
-        self.__prepare_data(images,labels,test_images,test_labels)
-
+        self.images, self.labels, self.test_images, self.test_labels = self.__load()
+        
     def __load(self):
         #num_cases_per_batch: 10000
         #label_names': airplane,automobile,bird,cat,deer,dog,frog,horse,ship,truck
@@ -193,8 +312,12 @@ class CIFAR10():
     
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,10)
-        X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb)
-        
+        if self.run == 'validate':
+            X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
+        elif self.run == 'test':
+            X_train,y_train= shuffle_train_data(train_data,train_lb)
+            X_val = 0 
+            y_val = 0
         self.dict_images = {'X_train':X_train,
                             'X_test': X_test,
                             'X_val': X_val,
@@ -240,11 +363,137 @@ class CIFAR10():
         mean = means
         std =  stds
         return mean,std
+    
+    def prepare_data(self):
+      self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
+    
+    def prepare_data_grad(self):
+      train_labels = self.labels
+      train_images = self.images
+      dat = []
+      labels = []
+      counter = [0,0,0,0,0,0,0,0,0,0]
+      lb = LabelEncoder()
+      train_labels = lb.fit_transform(train_labels)
+      
+      X_train, y_train = shuffle_train_data(train_images,train_labels)
+      
+      for i,data in enumerate(X_train):
+        if y_train[i] == 0 and counter[0] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[0] += 1
+        elif y_train[i] == 1 and counter[1] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[1] += 1
+        elif y_train[i] == 2 and counter[2] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[2] += 1
+        elif y_train[i] == 3 and counter[3] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[3] += 1
+        elif y_train[i] == 4 and counter[4] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[4] += 1
+        elif y_train[i] == 5 and counter[5] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[5] += 1
+        elif y_train[i] == 6 and counter[6] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[6] += 1
+        elif y_train[i] == 7 and counter[7] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[7] += 1
+        elif y_train[i] == 8 and counter[8] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[8] += 1
+        elif y_train[i] == 9 and counter[9] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[9] += 1
+      y_train, y_test = one_hot_encoding(labels,self.test_labels,10)
 
+      d = np.asarray(dat)
+      self.dict_images = {'X_train': d,
+                    'X_test' : self.test_images,
+                    }
+      self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
+    
+    def prepare_data_act(self):
+      test_labels = self.test_labels
+      test_images = self.test_images
+      
+      train_labels = self.labels
+      train_images = self.images
+      dat = []
+      labels = []
+      counter = [0,0,0,0,0,0,0,0,0,0]
+      lb = LabelEncoder()
+      train_labels = lb.fit_transform(train_labels)
+      test_labels = lb.fit_transform(test_labels)
+      X_train, y_train = shuffle_train_data(train_images,train_labels)
+      
+      for i,data in enumerate(test_images):
+        if test_labels[i] == 0 and counter[0] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[0] += 1
+        elif test_labels[i] == 1 and counter[1] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[1] += 1
+        elif test_labels[i] == 2 and counter[2] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[2] += 1
+        elif test_labels[i] == 3 and counter[3] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[3] += 1
+        elif test_labels[i] == 4 and counter[4] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[4] += 1
+        elif test_labels[i] == 5 and counter[5] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[5] += 1
+        elif test_labels[i] == 6 and counter[6] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[6] += 1
+        elif test_labels[i] == 7 and counter[7] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[7] += 1
+        elif test_labels[i] == 8 and counter[8] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[8] += 1
+        elif test_labels[i] == 9 and counter[9] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[9] += 1
+      y_train, y_test = one_hot_encoding(train_labels,labels,10)
 
-def main():
-    cal = Intel()
-    cal.get_mean_std()
+      d = np.asarray(dat)
+      self.dict_images = {'X_train': X_train,
+                    'X_test' : d,
+                    }
+      self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
+
 
 # MNIST Datensatz aus http://yann.lecun.com/exdb/mnist/
 # Eigenschaften: 60000 Dateien Trainingssatz und 10000 Testdatensaetze
@@ -254,7 +503,7 @@ def main():
 #
 class MNIST():
 
-    def __init__(self):
+    def __init__(self,test_size,run):
         
         path_to_dir = 'files/mnist/MNIST/raw'
         self.filename_train_data = path_to_dir+"/train-images-idx3-ubyte.gz"
@@ -262,8 +511,10 @@ class MNIST():
         self.filename_test_data = path_to_dir + "/t10k-images-idx3-ubyte.gz"
         self.filename_test_labels = path_to_dir + "/t10k-labels-idx1-ubyte.gz"
         
-        images, labels, test_images, test_labels = self.__load()
-        self.__prepare_data(images,labels,test_images,test_labels)
+        self.run = run
+        self.test_size = test_size
+        self.images, self.labels, self.test_images, self.test_labels = self.__load()
+        
 
     def __load(self):
         train_data = []
@@ -349,15 +600,20 @@ class MNIST():
         count = image_count+image_count_t
         
         data = np.append(train_data,test_data)
-        data = data.reshape(count,image_rows,image_cols)
+        data = data.reshape(count,1,image_rows,image_cols)
         labels = np.append(train_labels,test_labels)
 
         return data[:60000],labels[:60000],data[60000:],labels[60000:]
     
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,10)
-        X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb)
-        
+        if self.run == 'validate':
+            X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
+        elif self.run == 'test':
+            X_train,y_train = shuffle_train_data(train_data,train_lb)
+            X_val = 0 
+            y_val = 0
+
         self.dict_images = {'X_train':X_train,
                             'X_test': X_test,
                             'X_val': X_val,
@@ -385,12 +641,148 @@ class MNIST():
             plt.show()
 
     def get_mean_std(self):
-        d = self.dict_images['X_train']
-        mean = np.mean(d)
-        std = d.std()
-        mean = 0.13066047627384286
-        std = 0.3081078038564622
+        mean = []
+        std = []
+        t = torch.from_numpy(self.dict_images['X_train']*1.0)
+        means = t.mean(dim=0,keepdim=False) /255
+        stds = t.std(dim=(0,1,2),keepdim=False) /255
+        mean = means
+        std = torch.sum(stds) /28
+        return mean, std
+    
+    def prepare_data(self):
+      self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
+    
+    def prepare_data_grad(self):
+      train_labels = self.labels
+      train_images = self.images
+      dat = []
+      labels = []
+      counter = [0,0,0,0,0,0,0,0,0,0]
+      lb = LabelEncoder()
+      train_labels = lb.fit_transform(train_labels)
+      
+      X_train, y_train = shuffle_train_data(train_images,train_labels)
+      
+      for i,data in enumerate(X_train):
+        if y_train[i] == 0 and counter[0] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[0] += 1
+        elif y_train[i] == 1 and counter[1] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[1] += 1
+        elif y_train[i] == 2 and counter[2] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[2] += 1
+        elif y_train[i] == 3 and counter[3] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[3] += 1
+        elif y_train[i] == 4 and counter[4] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[4] += 1
+        elif y_train[i] == 5 and counter[5] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[5] += 1
+        elif y_train[i] == 6 and counter[6] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[6] += 1
+        elif y_train[i] == 7 and counter[7] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[7] += 1
+        elif y_train[i] == 8 and counter[8] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[8] += 1
+        elif y_train[i] == 9 and counter[9] < 50 :
+          dat.append(data)
+          labels.append(y_train[i])
+          counter[9] += 1
+      y_train, y_test = one_hot_encoding(labels,self.test_labels,10)
 
+      d = np.asarray(dat)
+      self.dict_images = {'X_train': d,
+                    'X_test' : self.test_images,
+                    }
+      self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
+    
+    def prepare_data_act(self):
+      test_labels = self.test_labels
+      test_images = self.test_images
+      
+      train_labels = self.labels
+      train_images = self.images
+      dat = []
+      labels = []
+      counter = [0,0,0,0,0,0,0,0,0,0]
+      lb = LabelEncoder()
+      train_labels = lb.fit_transform(train_labels)
+      test_labels = lb.fit_transform(test_labels)
+      X_train, y_train = shuffle_train_data(train_images,train_labels)
+      
+      for i,data in enumerate(test_images):
+        if test_labels[i] == 0 and counter[0] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[0] += 1
+        elif test_labels[i] == 1 and counter[1] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[1] += 1
+        elif test_labels[i] == 2 and counter[2] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[2] += 1
+        elif test_labels[i] == 3 and counter[3] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[3] += 1
+        elif test_labels[i] == 4 and counter[4] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[4] += 1
+        elif test_labels[i] == 5 and counter[5] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[5] += 1
+        elif test_labels[i] == 6 and counter[6] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[6] += 1
+        elif test_labels[i] == 7 and counter[7] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[7] += 1
+        elif test_labels[i] == 8 and counter[8] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[8] += 1
+        elif test_labels[i] == 9 and counter[9] < 50 :
+          dat.append(data)
+          labels.append(test_labels[i])
+          counter[9] += 1
+      y_train, y_test = one_hot_encoding(train_labels,labels,10)
+
+      d = np.asarray(dat)
+      self.dict_images = {'X_train': X_train,
+                    'X_test' : d,
+                    }
+      self.dict_labels = {'y_train': y_train,
+                    'y_test': y_test
+                    }
+
+def main():
+    cal = Intel(0.1,'test')
+    cal.prepare_data_grad()
 if __name__== "__main__":
 
     main()

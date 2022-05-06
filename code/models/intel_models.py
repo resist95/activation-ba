@@ -1236,16 +1236,24 @@ import torch.nn.functional as F
 #Test acc: 0.7548984681154257 Test loss: 0.6832327385597496 Train acc: 0.8493809566224281 Train loss: 0.40443381540581175
 #Epoch: [9 / 100] conv 5 256
 #Test acc: 0.7513359458496616 Test loss: 0.6893500075908123 Train acc: 0.810100650218224 Train loss: 0.5191839910349298
-class CNN_INTEL(nn.Module):
+#Epoch: [11 / 100]
+#Test acc: 0.7641610260064126 Test loss: 0.6809439915993397 Train acc: 0.8060924556871827 Train loss: 0.5149431783340412
+#Epoch: [11 / 100]
+#Test acc: 0.7691485571784824 Test loss: 0.6638081127082718 Train acc: 0.8023514741248775 Train loss: 0.5297922621254507
+'''class CNN_INTEL(nn.Module):
     def __init__(self):
         super(CNN_INTEL,self).__init__()
         self.conv1 = nn.Conv2d(3,96,5,3)
-        self.conv2 = nn.Conv2d(96,96,3,1)
-        self.conv3 = nn.Conv2d(96,128,3,2)
+        self.conv2 = nn.Conv2d(96,96,5,1)
+        self.conv3 = nn.Conv2d(96,128,3,1)
         self.pool = nn.MaxPool2d((2,2),2)
-        self.conv4 = nn.Conv2d(128,64,3,1)
+        self.pool2 = nn.MaxPool2d((2,2),1)
+        self.conv4 = nn.Conv2d(128,64,3,1,1)
         self.conv5 = nn.Conv2d(64,128,3,1)
-        self.fc1 = nn.Linear(12544,120)
+        self.conv6 = nn.Conv2d(128,128,3,1)
+        self.conv7 = nn.Conv2d(128,215,3,1)
+        self.fc1 = nn.Linear(42140,120)
+        self.drop = nn.Dropout(0.1)
         self.fc2 = nn.Linear(120,6)
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -1257,12 +1265,5301 @@ class CNN_INTEL(nn.Module):
         x = self.pool(x)
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = self.pool2(x)
+        x = F.relu(self.conv7(x))
+
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+
+        x = self.fc2(x)
+
+        return x'''
+#Epoch: [11 / 100]
+#Test acc: 0.7381546134663342 Test loss: 0.7494407251973482 Train acc: 0.80074819631246
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3)
+        self.conv2 = nn.Conv2d(96,96,5,1)
+        self.conv3 = nn.Conv2d(96,128,3,1)
+        self.pool = nn.MaxPool2d((2,2),2)
+        self.pool2 = nn.MaxPool2d((2,2),1)
+        self.conv4 = nn.Conv2d(128,64,3,1,1)
+        self.conv5 = nn.Conv2d(64,128,3,1)
+        self.conv6 = nn.Conv2d(128,128,3,2)
+        self.conv7 = nn.Conv2d(128,215,3,1)
+        self.fc1 = nn.Linear(7740,120)
+        self.drop = nn.Dropout(0.1)
+        self.fc2 = nn.Linear(120,6)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = self.pool(x)
+        x = F.relu(self.conv4(x))
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = self.pool2(x)
+        x = F.relu(self.conv7(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,128,5,2,1)
+        self.conv2 = nn.Conv2d(128,128,3,1)
+        self.conv3 = nn.Conv2d(128,64,3,1)
+        self.conv4 = nn.Conv2d(64,64,3,1)
+        self.conv5 = nn.Conv2d(64,32,3,1)
+        self.conv6 = nn.Conv2d(32,32,3,1)
+        self.pool = nn.MaxPool2d((2,2),2)
+
+        self.fc1 = nn.Linear(4608,256)
+        self.fc2 = nn.Linear(256,6)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool(x)
+        x = F.relu(self.conv5(x))
+        #x = self.pool(x)
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+#Epoch: [14 / 100]
+#Test acc: 0.7712860705379408 Test loss: 0.7260692276925794 Train acc: 0.8619399661530239 Train loss: 0.376043220811
+#Epoch: [12 / 100]  
+#Test acc: 0.7723548272176701 Test loss: 0.6522933702486917 Train acc: 0.8341498174044714 Train loss: 0.45040633844310407 
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,256)
+        self.fc2 = nn.Linear(256,6)
+    
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
         x = x.reshape(x.shape[0],-1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
 
         return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.relu(self.bn3(self.conv3(x)))
+        x = F.relu(self.bn4(self.conv4(x)))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.5)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+#0.77
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop1(F.relu(self.conv1(x)))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = self.drop2(F.relu(self.conv3(x)))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = self.drop2(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop1(F.relu(self.bn1(self.conv1(x))))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop1(F.relu(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop1(F.relu(self.conv1(x)))
+        x = F.relu(self.bn1(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.relu(self.bn3(self.conv3(x)))
+        x = F.relu(self.conv4(x))
+        x = self.pool1(x)
+        x = F.relu(self.conv5(x))
+        x = F.relu(self.conv6(x))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.1)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.1)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.05)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.05)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,64)
+        self.fc2 = nn.Linear(64,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.1)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#best
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best model
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.1)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.1)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.05)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+# best model
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+        
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+        
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,2,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(16384,128)
+        self.fc2 = nn.Linear(128,6)
+        
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.pool3 = nn.MaxPool2d(3,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.pool3(F.relu(self.conv1(x)))
+        x = self.pool1(self.drop2(F.relu(self.conv2(x))))
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,1,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(73984,128)
+        self.fc2 = nn.Linear(128,6)
+        
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.pool3 = nn.MaxPool2d(3,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.pool3(F.relu(self.conv1(x)))
+        x = self.pool1(self.drop2(F.relu(self.conv2(x))))
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1) #zuvor 5 
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(256,128)
+        self.fc2 = nn.Linear(128,6)
+        
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+        self.avg = nn.AvgPool2d((5,5),1)
+        self.bn1 = nn.BatchNorm2d(256)
+        self.bn2 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(6400,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((5,5),1)
+        self.bn1 = nn.BatchNorm2d(256)
+        self.bn2 = nn.BatchNorm2d(256)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.bn2(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best model
+#später mit größeren size testen
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,128,5,3,1)
+        self.conv2 = nn.Conv2d(128,128,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(128,156,(6,6),1)
+        self.conv4 = nn.Conv2d(156,156,(3,3),1,1)
+        self.conv5 = nn.Conv2d(156,198,3,1,1)
+        self.conv6 = nn.Conv2d(198,198,3,2,1)
+        self.fc1 = nn.Linear(1782,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(3,3),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,218,3,1,1)
+        self.conv6 = nn.Conv2d(218,218,3,2,1)
+        self.fc1 = nn.Linear(3488,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,146,(6,6),1)
+        self.conv4 = nn.Conv2d(146,146,(3,3),1,1)
+        self.conv5 = nn.Conv2d(146,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,136,(6,6),1)
+        self.conv4 = nn.Conv2d(136,136,(3,3),1,1)
+        self.conv5 = nn.Conv2d(136,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,110,(6,6),1)
+        self.conv4 = nn.Conv2d(110,110,(3,3),1,1)
+        self.conv5 = nn.Conv2d(110,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.conv1(x))
+        x = self.drop2(F.relu(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.conv3(x)))
+        x = self.drop4(F.relu(self.conv4(x)))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.conv5(x)))
+        x = self.drop6(F.relu(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.1)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [26 / 30] [0.0007]
+#Test acc: 0.7926612041325258 Test loss: 0.5868982691634231 Train acc: 0.8559722098512514 Train loss: 0.40653521246020224
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.05)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best model ReLU
+class CNN_INTEL_RELU(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.5)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.05)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+'''class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.05)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.05)
+        self.drop6 = nn.Dropout(0.2)
+
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(F.relu(self.bn3(self.conv3(x))))
+        x = self.drop4(F.relu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(F.relu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.relu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.relu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#1. fanout fanin
+#3. fanout fanout
+#best model
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.conv1(x))
+        x = F.silu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.silu(self.conv3(x))
+        x = F.silu(self.conv4(x))
+        x = self.pool2(x)
+        x = F.silu(self.conv5(x))
+        x = F.silu(self.conv6(x))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = F.silu(self.fc1(x))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.5)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.conv1(x))
+        x = F.silu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.silu(self.conv3(x))
+        x = F.silu(self.conv4(x))
+        x = self.pool2(x)
+        x = F.silu(self.conv5(x))
+        x = F.silu(self.conv6(x))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best
+'''class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.conv1(x))
+        x = F.silu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.silu(self.conv3(x))
+        x = F.silu(self.conv4(x))
+        x = self.pool2(x)
+        x = F.silu(self.conv5(x))
+        x = F.silu(self.conv6(x))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.0)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.conv1(x))
+        x = F.silu(self.conv2(x))
+        x = self.pool1(x)
+        x = F.silu(self.conv3(x))
+        x = F.silu(self.conv4(x))
+        x = self.pool2(x)
+        x = F.silu(self.conv5(x))
+        x = F.silu(self.conv6(x))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#Epoch: [12 / 25] [0.0003]
+#Test acc: 0.8069112931955825 Test loss: 0.5653778917531214 Train acc: 0.8355749532377305 Train loss: 0.4574536908310449
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.bn1(self.conv1(x)))
+        x = self.drop2(F.silu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = F.silu(self.bn4(self.conv4(x)))
+        x = self.pool2(x)
+        x = F.silu(self.bn5(self.conv5(x)))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [11 / 25] [0.0003]
+#Test acc: 0.8094050587816174 Test loss: 0.5458518729868411 Train acc: 0.8260443573528102 Train loss: 0.47963387336317687
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = F.silu(self.bn4(self.conv4(x)))
+        x = self.pool2(x)
+        x = F.silu(self.bn5(self.conv5(x)))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [12 / 25] [0.0003]
+#Test acc: 0.791948699679373 Test loss: 0.5865657954237534 Train acc: 0.8312104747483745 Train loss: 0.464171197488177
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = F.silu(self.bn1(self.conv1(x)))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop2(F.silu(self.bn3(self.conv3(x))))
+        x = F.silu(self.bn4(self.conv4(x)))
+        x = self.pool2(x)
+        x = F.silu(self.bn5(self.conv5(x)))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = F.silu(self.bn5(self.conv5(x)))
+        x = self.drop4(F.silu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop4(F.silu(self.bn3(self.conv3(x))))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = F.silu(self.bn5(self.conv5(x)))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#best model 1-4
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = self.drop5(F.silu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best model swish
+class CNN_INTEL_SWISH(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_SWISH,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.silu(self.bn3(self.conv3(x))))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+'''class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = self.drop5(F.silu(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = F.silu(self.bn3(self.conv3(x)))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = F.silu(self.bn6(self.conv6(x)))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.05)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.silu(self.bn3(self.conv3(x))))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.silu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.silu(self.bn3(self.conv3(x))))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.silu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+
+        self.drop1 = nn.Dropout(0.25)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.05)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='leaky_relu')  
+    def forward(self,x):
+        x = self.drop2(F.silu(self.bn1(self.conv1(x))))
+        x = F.silu(self.bn2(self.conv2(x)))
+        x = self.pool1(x)
+        x = self.drop5(F.silu(self.bn3(self.conv3(x))))
+        x = self.drop3(F.silu(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop4(F.silu(self.bn5(self.conv5(x))))
+        x = self.drop6(F.silu(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop1(F.silu(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#best model
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.5)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [9 / 15] [0.0001]
+#Test acc: 0.7598859992874956 Test loss: 0.6691683501717766 Train acc: 0.8013716932395119 Train loss: 0.5413185743300789
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [14 / 15] [0.0001]
+#Test acc: 0.7841111506946918 Test loss: 0.633712919208981 Train acc: 0.8363765921439387 Train loss: 0.45843965342480725
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.25)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#best
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+'''#Epoch: [20 / 20] [0.001]
+#Test acc: 0.7506234413965087 Test loss: 0.7052604722291747 Train acc: 0.7563908435022713 Train loss: 0.6744609868405362
+class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [20 / 20] [0.001]
+#Test acc: 0.7499109369433559 Test loss: 0.6898114790451173 Train acc: 0.7537187138149105 Train loss: 0.6771410405434256
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [17 / 20] [0.001]
+#Test acc: 0.7520484503028144 Test loss: 0.7133273636015801 Train acc: 0.756747127460586 Train loss: 0.6778938956634504
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#Epoch: [20 / 20] [0.001]
+#Test acc: 0.7506234413965087 Test loss: 0.6983759306378843 Train acc: 0.7493542353255545 Train loss: 0.7077882579800963
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+#Epoch: [19 / 20] [0.001]
+#Test acc: 0.738867117919487 Test loss: 0.7142150637603789 Train acc: 0.7571034114189009 Train loss: 0.6787028316159908
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [16 / 20] [0.001]
+#Test acc: 0.7381546134663342 Test loss: 0.7124616848908718 Train acc: 0.7170214661084885 Train loss: 0.7780516944628053
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.2)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [20 / 20] [0.001]
+#Test acc: 0.7499109369433559 Test loss: 0.6898114790451173 Train acc: 0.7537187138149105 Train loss: 0.6771410405434256
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [17 / 20] [0.001]
+#Test acc: 0.7520484503028144 Test loss: 0.7133273636015801 Train acc: 0.756747127460586 Train loss: 0.6778938956634504
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#layer 5,3 beste
+#
+# Epoch: [28 / 40] [0.0005]
+#Test acc: 0.7990737442109013 Test loss: 0.5880210852056114 Train acc: 0.8174935423532556 Train loss: 0.501196602990449
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [28 / 40] [0.0005]
+#Test acc: 0.7937299608122551 Test loss: 0.5887237565477382 Train acc: 0.8291618419880645 Train loss: 0.4775610294496972
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [36 / 40] [0.0005]
+#Test acc: 0.8069112931955825 Test loss: 0.5635979478994396 Train acc: 0.8472432528725394 Train loss: 0.42962832653999045
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [31 / 40] [0.0005]
+#Test acc: 0.7926612041325258 Test loss: 0.5831263296299166 Train acc: 0.8301416228734301 Train loss: 0.47383551827701653
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#0.545 0.810 epoch 40
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.2)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#0.538 0.814 epoch 32
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#0.57 0.80
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.2)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.2)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.0)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#0.79 0.57
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#0.81 0.55
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#0.79 0.58
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.3)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#0.78 0.58
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.2)
+        self.drop4 = nn.Dropout(0.2)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.05)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.1)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+
+'''class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.1)
+        self.drop2 = nn.Dropout(0.0)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+#0.56 0.80
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.1)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+#0.814 0.54
+#intel model tanh
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.05)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.05)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.0)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x'''
+#0.79 0.60
+class CNN_INTEL(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.05)
+        self.drop2 = nn.Dropout(0.05)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.05)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.05)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [32 / 45] [0.0005]
+#Test acc: 0.790167438546491 Test loss: 0.604709322168608
+class CNN_INTEL_2(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_2,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.1)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.3)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#Epoch: [34 / 45] [0.0005]
+#Test acc: 0.7915924474527966 Test loss: 0.5837144806353929 Train acc: 0.8398503607375077 Train loss: 0.4573135480577938
+class CNN_INTEL_3(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_3,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.1)
+        self.drop6 = nn.Dropout(0.0)
+        self.drop_fc = nn.Dropout(0.2)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+
+class CNN_INTEL_4(nn.Module):
+    def __init__(self):
+        super(CNN_INTEL_4,self).__init__()
+        self.conv1 = nn.Conv2d(3,96,5,3,1)
+        self.conv2 = nn.Conv2d(96,96,3,1,1)
+        self.pool1 = nn.MaxPool2d((3,3),2,1)
+        self.conv3 = nn.Conv2d(96,128,(6,6),1)
+        self.conv4 = nn.Conv2d(128,128,(3,3),1,1)
+        self.conv5 = nn.Conv2d(128,256,3,1,1)
+        self.conv6 = nn.Conv2d(256,256,3,2,1)
+        self.fc1 = nn.Linear(2304,128)
+        self.fc2 = nn.Linear(128,6)
+        self.avg = nn.AvgPool2d((3,3),1)
+        self.pool2 = nn.MaxPool2d((3,3),2,1)
+        self.tanh = nn.Tanh()
+        self.drop1 = nn.Dropout(0.0)
+        self.drop2 = nn.Dropout(0.1)
+        self.drop3 = nn.Dropout(0.0)
+        self.drop4 = nn.Dropout(0.1)
+        self.drop5 = nn.Dropout(0.0)
+        self.drop6 = nn.Dropout(0.1)
+        self.drop_fc = nn.Dropout(0.3)
+        self.bn1 = nn.BatchNorm2d(96)
+        self.bn2 = nn.BatchNorm2d(96)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(128)
+        self.bn5 = nn.BatchNorm2d(256)
+        self.bn6 = nn.BatchNorm2d(256)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.xavier_normal_(m.weight,1)  
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight,1)  
+    def forward(self,x):
+        x = self.drop1(self.tanh(self.bn1(self.conv1(x))))
+        x = self.drop2(self.tanh(self.bn2(self.conv2(x))))
+        x = self.pool1(x)
+        x = self.drop3(self.tanh(self.bn3(self.conv3(x))))
+        x = self.drop4(self.tanh(self.bn4(self.conv4(x))))
+        x = self.pool2(x)
+        x = self.drop5(self.tanh(self.bn5(self.conv5(x))))
+        x = self.drop6(self.tanh(self.bn6(self.conv6(x))))
+        x = self.avg(x)
+        x = x.reshape(x.shape[0],-1)
+        x = self.drop_fc(self.tanh(self.fc1(x)))
+        x = self.fc2(x)
+
+        return x
+#mit 0.001 testen
 from torchsummary import summary
-model = CNN_INTEL()
+print(torch.cuda.is_available())
+model = CNN_INTEL_4()
 model.to('cuda')
+
 summary(model, (3, 150, 150))

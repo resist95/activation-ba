@@ -14,18 +14,13 @@ from typing import Dict, Callable
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
 
-from datasets.datasets import IntelDataset
 from datasets.data import Intel
-from models.intel_models import CNN_INTEL
+from models.intel_models import CNN_INTEL,CNN_INTEL_2,CNN_INTEL_3,CNN_INTEL_4
+from datasets.datasets import CustomDataset
 
-from datasets.datasets import MnistDataset
 from datasets.data import MNIST
 from models.mnist_models import CNN_MNIST_ACT
 
-
-from datasets.datasets import Cifar10Dataset
-from datasets.data import CIFAR10
-from models.cifar_models import CNN_CIFAR
 sns.set()
 
 import torch
@@ -40,22 +35,23 @@ x = current_time.replace(':','_')
 
 
 #device setup 
-device =  'cuda:0' if torch.cuda.is_available() else 'cpu'
-if device == 'cuda:0':
+device =  'cuda' if torch.cuda.is_available() else 'cpu'
+if device == 'cuda':
     print('running on gpu')
 
 writer = SummaryWriter()
 #Params 0.1, 0.03, 0.001, 0.0003
-lr = 0.0003
-epochs = 100
-batch_size = 32
+
+lr = 0.0005
+epochs = 30
+batch_size = 64
 
 
 #Data
-dat = Intel()
+dat = Intel(0.2,'validate')
 m,s = dat.get_mean_std()
 #dataset
-ds = IntelDataset
+ds = CustomDataset
 ds.set_mean_std(ds,mean=m,std=s)
 
 criterion = nn.CrossEntropyLoss()
@@ -117,16 +113,16 @@ def test(epoch,test):
     writer.add_scalar('Mean Accuracy Test',mean_acc,epoch)
     writer.add_scalar('Mean Loss Test',mean_loss,epoch)
     return mean_acc, mean_loss
+ms = [CNN_INTEL,CNN_INTEL_2,CNN_INTEL_3,CNN_INTEL_4]
+for i,model in enumerate(ms):
+    model = CNN_INTEL()
+    optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=0.000125)
+    model.to(device)
+    writer = SummaryWriter(f'runs/intel_tests_tanh_{x}_{i}_{lr}')     
+    
+    for epoch in range(epochs):
+        print(f'Epoch: [{epoch+1} / {epochs}] [{lr}]')
+        train_acc,train_loss = train(epoch,trains)
 
-
-model = CNN_INTEL()
-optimizer = optim.Adam(model.parameters(),lr=lr)
-model.to(device)
-writer = SummaryWriter(f'runs/intel_96_96_128_256fc_125lr{lr}kernel3_3_3_3_s_3_1_1_1{x}')
-        
-for epoch in range(epochs):
-    print(f'Epoch: [{epoch+1} / {epochs}]')
-    train_acc,train_loss = train(epoch,trains)
-
-    test_acc,test_loss = test(epoch,tests)
-    print(f'Test acc: {test_acc} Test loss: {test_loss} Train acc: {train_acc} Train loss: {train_loss}')
+        test_acc,test_loss = test(epoch,tests)
+        print(f'Test acc: {test_acc} Test loss: {test_loss} Train acc: {train_acc} Train loss: {train_loss}')
