@@ -3,16 +3,18 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 
-
+#aufsplitten in train und validation data
 def train_validate_split(X_train,y_train,test_size=0):
     X_t, y_t = shuffle(X_train,y_train)
     X_tr, X_val, y_tr, y_val = train_test_split(X_t,y_t,test_size=test_size)
     return X_tr,y_tr,X_val,y_val
 
+#shufflen train data, da nn mit gleichen daten arbeiten sollen wird shuffle von pytorch deaktiviert
 def shuffle_train_data(X_train,y_train):
     X_t, y_t = shuffle(X_train,y_train)
     return X_t,y_t
-    
+
+#ohc um softmax zu verbessern
 def one_hot_encoding(train_labels,test_labels,num_classes):
     lb = LabelEncoder()
     train_labels = lb.fit_transform(train_labels)

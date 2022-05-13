@@ -84,10 +84,11 @@ class Intel():
 
         return train_data, train_labels, test_data,test_labels
 
+    #Split Daten in Test, val und training set
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,6)
-        
-        if self.run == 'validate':
+
+        if self.run == 'validate': #Falls Validation set gebraucht wird Split aus Train Daten generieren
             X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
         elif self.run == 'test':
             X_train,y_train = shuffle_train_data(train_data,train_lb)
@@ -103,6 +104,7 @@ class Intel():
                         }
     
     def get_data(self,what_is_needed):
+      #Abhängig welche Daten benötigt werden werden Dictionary Eintraege uebergeben
         if what_is_needed == 'train':
             return (self.dict_images['X_train'],self.dict_labels['y_train'])
         elif what_is_needed == 'test':
@@ -121,11 +123,10 @@ class Intel():
         plt.show()
     
     def get_mean_std(self):
+      #mean und std berechnung zur standardisierung der Daten
         t = torch.from_numpy(self.dict_images['X_train']*1.0)
         means = t.mean(dim=0, keepdim=False) /255
         stds = t.std(dim=0,keepdim=False) /255
-        #te = torch.flatten(means) /255
-        #ts = torch.flatten(stds) /255
         mean = means
         std =  stds
         return mean,std
@@ -133,59 +134,44 @@ class Intel():
     def prepare_data(self):
         self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
 
-    def prepare_data_grad(self):
+    def prepare_data_grad(self,batch_size):
+      #Gradient benoetigt anderes Dictionary
         train_labels = self.labels
         train_images = self.images
         dat = []
         labels = []
-        counter = [0,0,0,0,0,0,0,0,0,0]
+        counter = [0,0,0,0,0,0]
         lb = LabelEncoder()
         train_labels = lb.fit_transform(train_labels)
         
         X_train, y_train = shuffle_train_data(train_images,train_labels)
         
         for i,data in enumerate(X_train):
-            if y_train[i] == 0 and counter[0] < 50 :
+            if y_train[i] == 0 and counter[0] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[0] += 1
-            elif y_train[i] == 1 and counter[1] < 50 :
+            elif y_train[i] == 1 and counter[1] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[1] += 1
-            elif y_train[i] == 2 and counter[2] < 50 :
+            elif y_train[i] == 2 and counter[2] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[2] += 1
-            elif y_train[i] == 3 and counter[3] < 50 :
+            elif y_train[i] == 3 and counter[3] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[3] += 1
-            elif y_train[i] == 4 and counter[4] < 50 :
+            elif y_train[i] == 4 and counter[4] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[4] += 1
-            elif y_train[i] == 5 and counter[5] < 50 :
+            elif y_train[i] == 5 and counter[5] < batch_size :
                 dat.append(data)
                 labels.append(y_train[i])
                 counter[5] += 1
-            elif y_train[i] == 6 and counter[6] < 50 :
-                dat.append(data)
-                labels.append(y_train[i])
-                counter[6] += 1
-            elif y_train[i] == 7 and counter[7] < 50 :
-                dat.append(data)
-                labels.append(y_train[i])
-                counter[7] += 1
-            elif y_train[i] == 8 and counter[8] < 50 :
-                dat.append(data)
-                labels.append(y_train[i])
-                counter[8] += 1
-            elif y_train[i] == 9 and counter[9] < 50 :
-                dat.append(data)
-                labels.append(y_train[i])
-                counter[9] += 1
-        y_train, y_test = one_hot_encoding(labels,self.test_labels,10)
+        y_train, y_test = one_hot_encoding(labels,self.test_labels,6)
 
         d = np.asarray(dat)
         self.dict_images = {'X_train': d,
@@ -195,7 +181,8 @@ class Intel():
                     'y_test': y_test
                     }
 
-    def prepare_data_act(self):
+    def prepare_data_act(self, batch_size):
+      #Act benoetigt anderes Dictionary
         test_labels = self.test_labels
         test_images = self.test_images
         
@@ -203,53 +190,37 @@ class Intel():
         train_images = self.images
         dat = []
         labels = []
-        counter = [0,0,0,0,0,0,0,0,0,0]
+        counter = [0,0,0,0,0,0]
         lb = LabelEncoder()
         train_labels = lb.fit_transform(train_labels)
         test_labels = lb.fit_transform(test_labels)
         X_train, y_train = shuffle_train_data(train_images,train_labels)
         
         for i,data in enumerate(test_images):
-            if test_labels[i] == 0 and counter[0] < 50 :
+            if test_labels[i] == 0 and counter[0] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[0] += 1
-            elif test_labels[i] == 1 and counter[1] < 50 :
+            elif test_labels[i] == 1 and counter[1] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[1] += 1
-            elif test_labels[i] == 2 and counter[2] < 50 :
+            elif test_labels[i] == 2 and counter[2] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[2] += 1
-            elif test_labels[i] == 3 and counter[3] < 50 :
+            elif test_labels[i] == 3 and counter[3] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[3] += 1
-            elif test_labels[i] == 4 and counter[4] < 50 :
+            elif test_labels[i] == 4 and counter[4] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[4] += 1
-            elif test_labels[i] == 5 and counter[5] < 50 :
+            elif test_labels[i] == 5 and counter[5] < batch_size :
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[5] += 1
-            elif test_labels[i] == 6 and counter[6] < 50 :
-                dat.append(data)
-                labels.append(test_labels[i])
-                counter[6] += 1
-            elif test_labels[i] == 7 and counter[7] < 50 :
-                dat.append(data)
-                labels.append(test_labels[i])
-                counter[7] += 1
-            elif test_labels[i] == 8 and counter[8] < 50 :
-                dat.append(data)
-                labels.append(test_labels[i])
-                counter[8] += 1
-            elif test_labels[i] == 9 and counter[9] < 50 :
-                dat.append(data)
-                labels.append(test_labels[i])
-                counter[9] += 1
         y_train, y_test = one_hot_encoding(train_labels,labels,10)
 
         d = np.asarray(dat)
@@ -311,6 +282,7 @@ class CIFAR10():
         return train_data,train_labels,test_data,test_labels
     
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
+      #siehe intel
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,10)
         if self.run == 'validate':
             X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
@@ -328,6 +300,7 @@ class CIFAR10():
                         }
 
     def get_data(self,what_is_needed):
+      #siehe intel
         if what_is_needed == 'train':
             return (self.dict_images['X_train'],self.dict_labels['y_train'])
         elif what_is_needed == 'test':
@@ -350,13 +323,9 @@ class CIFAR10():
         plt.show()
 
     def get_mean_std(self):
+      #siehe intel
         mean = []
         std = []
-        #mean = self.dict_images['X_train'].mean(axis=(2,3))
-        #std = self.dict_images['X_train'].std(axis=(2,3))
-        #mean = np.mean(mean,axis=(0)) /255
-        #std = np.mean(std,axis=(0)) /255
-        #print(mean)
         t = torch.from_numpy(self.dict_images['X_train']*1.0)
         means = t.mean(dim=0, keepdim=False) /255
         stds = t.std(dim=0,keepdim=False) /255
@@ -367,7 +336,8 @@ class CIFAR10():
     def prepare_data(self):
       self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
     
-    def prepare_data_grad(self):
+    def prepare_data_grad(self,batch_size):
+      #siehe intel
       train_labels = self.labels
       train_images = self.images
       dat = []
@@ -379,43 +349,43 @@ class CIFAR10():
       X_train, y_train = shuffle_train_data(train_images,train_labels)
       
       for i,data in enumerate(X_train):
-        if y_train[i] == 0 and counter[0] < 50 :
+        if y_train[i] == 0 and counter[0] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[0] += 1
-        elif y_train[i] == 1 and counter[1] < 50 :
+        elif y_train[i] == 1 and counter[1] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[1] += 1
-        elif y_train[i] == 2 and counter[2] < 50 :
+        elif y_train[i] == 2 and counter[2] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[2] += 1
-        elif y_train[i] == 3 and counter[3] < 50 :
+        elif y_train[i] == 3 and counter[3] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[3] += 1
-        elif y_train[i] == 4 and counter[4] < 50 :
+        elif y_train[i] == 4 and counter[4] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[4] += 1
-        elif y_train[i] == 5 and counter[5] < 50 :
+        elif y_train[i] == 5 and counter[5] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[5] += 1
-        elif y_train[i] == 6 and counter[6] < 50 :
+        elif y_train[i] == 6 and counter[6] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[6] += 1
-        elif y_train[i] == 7 and counter[7] < 50 :
+        elif y_train[i] == 7 and counter[7] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[7] += 1
-        elif y_train[i] == 8 and counter[8] < 50 :
+        elif y_train[i] == 8 and counter[8] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[8] += 1
-        elif y_train[i] == 9 and counter[9] < 50 :
+        elif y_train[i] == 9 and counter[9] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[9] += 1
@@ -429,7 +399,8 @@ class CIFAR10():
                     'y_test': y_test
                     }
     
-    def prepare_data_act(self):
+    def prepare_data_act(self,batch_size):
+      #siehe intel
       test_labels = self.test_labels
       test_images = self.test_images
       
@@ -444,43 +415,43 @@ class CIFAR10():
       X_train, y_train = shuffle_train_data(train_images,train_labels)
       
       for i,data in enumerate(test_images):
-        if test_labels[i] == 0 and counter[0] < 50 :
+        if test_labels[i] == 0 and counter[0] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[0] += 1
-        elif test_labels[i] == 1 and counter[1] < 50 :
+        elif test_labels[i] == 1 and counter[1] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[1] += 1
-        elif test_labels[i] == 2 and counter[2] < 50 :
+        elif test_labels[i] == 2 and counter[2] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[2] += 1
-        elif test_labels[i] == 3 and counter[3] < 50 :
+        elif test_labels[i] == 3 and counter[3] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[3] += 1
-        elif test_labels[i] == 4 and counter[4] < 50 :
+        elif test_labels[i] == 4 and counter[4] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[4] += 1
-        elif test_labels[i] == 5 and counter[5] < 50 :
+        elif test_labels[i] == 5 and counter[5] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[5] += 1
-        elif test_labels[i] == 6 and counter[6] < 50 :
+        elif test_labels[i] == 6 and counter[6] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[6] += 1
-        elif test_labels[i] == 7 and counter[7] < 50 :
+        elif test_labels[i] == 7 and counter[7] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[7] += 1
-        elif test_labels[i] == 8 and counter[8] < 50 :
+        elif test_labels[i] == 8 and counter[8] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[8] += 1
-        elif test_labels[i] == 9 and counter[9] < 50 :
+        elif test_labels[i] == 9 and counter[9] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[9] += 1
@@ -606,6 +577,7 @@ class MNIST():
         return data[:60000],labels[:60000],data[60000:],labels[60000:]
     
     def __prepare_data(self,train_data,train_labels,X_test,test_labels):
+      #siehe intel
         train_lb,y_test = one_hot_encoding(train_labels,test_labels,10)
         if self.run == 'validate':
             X_train,y_train,X_val,y_val = train_validate_split(train_data,train_lb,self.test_size)
@@ -624,6 +596,7 @@ class MNIST():
                         }
 
     def get_data(self,what_is_needed):
+      #siehe intel
         if what_is_needed == 'train':
             return (self.dict_images['X_train'],self.dict_labels['y_train'])
         elif what_is_needed == 'test':
@@ -641,6 +614,7 @@ class MNIST():
             plt.show()
 
     def get_mean_std(self):
+      #siehe intel
         mean = []
         std = []
         t = torch.from_numpy(self.dict_images['X_train']*1.0)
@@ -653,7 +627,8 @@ class MNIST():
     def prepare_data(self):
       self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
     
-    def prepare_data_grad(self):
+    def prepare_data_grad(self,batch_size):
+      #siehe intel
       train_labels = self.labels
       train_images = self.images
       dat = []
@@ -665,43 +640,43 @@ class MNIST():
       X_train, y_train = shuffle_train_data(train_images,train_labels)
       
       for i,data in enumerate(X_train):
-        if y_train[i] == 0 and counter[0] < 50 :
+        if y_train[i] == 0 and counter[0] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[0] += 1
-        elif y_train[i] == 1 and counter[1] < 50 :
+        elif y_train[i] == 1 and counter[1] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[1] += 1
-        elif y_train[i] == 2 and counter[2] < 50 :
+        elif y_train[i] == 2 and counter[2] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[2] += 1
-        elif y_train[i] == 3 and counter[3] < 50 :
+        elif y_train[i] == 3 and counter[3] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[3] += 1
-        elif y_train[i] == 4 and counter[4] < 50 :
+        elif y_train[i] == 4 and counter[4] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[4] += 1
-        elif y_train[i] == 5 and counter[5] < 50 :
+        elif y_train[i] == 5 and counter[5] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[5] += 1
-        elif y_train[i] == 6 and counter[6] < 50 :
+        elif y_train[i] == 6 and counter[6] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[6] += 1
-        elif y_train[i] == 7 and counter[7] < 50 :
+        elif y_train[i] == 7 and counter[7] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[7] += 1
-        elif y_train[i] == 8 and counter[8] < 50 :
+        elif y_train[i] == 8 and counter[8] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[8] += 1
-        elif y_train[i] == 9 and counter[9] < 50 :
+        elif y_train[i] == 9 and counter[9] < batch_size :
           dat.append(data)
           labels.append(y_train[i])
           counter[9] += 1
@@ -715,7 +690,8 @@ class MNIST():
                     'y_test': y_test
                     }
     
-    def prepare_data_act(self):
+    def prepare_data_act(self,batch_size):
+      #siehe intel
       test_labels = self.test_labels
       test_images = self.test_images
       
@@ -730,43 +706,43 @@ class MNIST():
       X_train, y_train = shuffle_train_data(train_images,train_labels)
       
       for i,data in enumerate(test_images):
-        if test_labels[i] == 0 and counter[0] < 50 :
+        if test_labels[i] == 0 and counter[0] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[0] += 1
-        elif test_labels[i] == 1 and counter[1] < 50 :
+        elif test_labels[i] == 1 and counter[1] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[1] += 1
-        elif test_labels[i] == 2 and counter[2] < 50 :
+        elif test_labels[i] == 2 and counter[2] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[2] += 1
-        elif test_labels[i] == 3 and counter[3] < 50 :
+        elif test_labels[i] == 3 and counter[3] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[3] += 1
-        elif test_labels[i] == 4 and counter[4] < 50 :
+        elif test_labels[i] == 4 and counter[4] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[4] += 1
-        elif test_labels[i] == 5 and counter[5] < 50 :
+        elif test_labels[i] == 5 and counter[5] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[5] += 1
-        elif test_labels[i] == 6 and counter[6] < 50 :
+        elif test_labels[i] == 6 and counter[6] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[6] += 1
-        elif test_labels[i] == 7 and counter[7] < 50 :
+        elif test_labels[i] == 7 and counter[7] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[7] += 1
-        elif test_labels[i] == 8 and counter[8] < 50 :
+        elif test_labels[i] == 8 and counter[8] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[8] += 1
-        elif test_labels[i] == 9 and counter[9] < 50 :
+        elif test_labels[i] == 9 and counter[9] < batch_size :
           dat.append(data)
           labels.append(test_labels[i])
           counter[9] += 1

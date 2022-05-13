@@ -1,14 +1,13 @@
-
-
-test daten mit netzen überprüfen
-
-plots skalierung verbessern
-
-gradienten für alle klassen, datensätze plotten
-
 gleiche für aktivierungen
 
 oszillierende lr anschaun
 
-alle daten als trainingssatz für gradienten kontrollieren mit batch
+
+tanh und silu gleiche gradienten verteilung
+
+
+accuracy/loss bei reduzierten trainingsdaten
+
+Anzahl toter Neuronen
+
 
