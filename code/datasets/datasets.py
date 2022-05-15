@@ -23,6 +23,7 @@ class CustomDataset(Dataset):
         if self.transform:
             images = self.transform(self.images[idx])
             images = images.permute(1,0,2) #umformatierung von h,c,w in c,h,w
+
             normalize = T.Normalize((self.mean),(self.std)) #normalisierung und umwandlung in tensor
             norm = normalize(images)
             images = norm

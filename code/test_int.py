@@ -63,7 +63,7 @@ def gradients():
 
     print('Loading Data... \n')
     data = Intel(0.0,'test')
-    data.prepare_data()
+    data.prepare_data_grad(100)
     m,s = data.get_mean_std()
     print('Done.')
 
@@ -79,9 +79,9 @@ def gradients():
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    #,CNN_INTEL_SWISH(),CNN_INTEL_TANH()
-    m = [CNN_INTEL_RELU()]
-    m_names = ['relu']
+
+    m = [CNN_INTEL_RELU(),CNN_INTEL_SWISH(),CNN_INTEL_TANH()]
+    m_names = ['relu','swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')
@@ -92,15 +92,58 @@ def gradients():
         a = ActivationFunction(model,'gradient',params_dict_intel,m_names[i],6,'act_comp')
         a.compute_gradients(train,test)
 
+def activations():
+    batch_size_train = params_dict_intel['batch_size']
+    batch_size_test = params_dict_intel['batch_size']
+    print(batch_size_test)
+    print(batch_size_train)
+    acc = {}
+    loss = {}
 
+    print('Loading Data... \n')
+    data = Intel(0.0,'test')
+    data.prepare_data_act(100)
+    m,s = data.get_mean_std()
+    print('Done.')
 
+    dataset = CustomDataset
+
+    print('Loading train and test samples into DataLoader... \n')
+    X_train,y_train = data.get_data('train')
+    X_test, y_test = data.get_data('test')
+    
+    train = dataset(X_train,y_train)
+    test = dataset(X_test,y_test)
+    train.set_mean_std(m,s)
+    test.set_mean_std(m,s)
+    train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+    test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+    print('Done')
+    m = [CNN_INTEL_RELU(),CNN_INTEL_SWISH(),CNN_INTEL_TANH()]
+    m_names = ['relu','swish','tanh']
+
+    print('Before test start make sure that you have set the correct parameters')
+    input('Press any key to continue...')
+    
+    lrs = [0.1,0.01,0.001,0.0001,0.00001]
+    
+    for lr in lrs:
+        params_dict_intel['lr_relu'] = lr
+        params_dict_intel['lr_swish'] = lr
+        params_dict_intel['lr_tanh'] = lr
+
+        for i, model in enumerate(m):
+            print(f'Training CNN with activation function [{m_names[i]}]')
+        
+            a = ActivationFunction(model,'act',params_dict_intel,m_names[i],6,'act_comp')
+            a.compute_activations(train,test)
 
 
 
 def main():
     #accuracy_loss(val=False)
-    gradients()
-    #activations()
+    #gradients()
+    activations()
     
         
 if __name__== "__main__":

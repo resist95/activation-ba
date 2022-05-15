@@ -63,7 +63,7 @@ def gradients():
 
     print('Loading Data... \n')
     data = CIFAR10(0.0,'test')
-    data.prepare_data()
+    data.prepare_data_grad(100)
     m,s = data.get_mean_std()
     print('Done.')
 
@@ -95,13 +95,14 @@ def gradients():
 def activations():
     batch_size_train = params_dict_cifar['batch_size']
     batch_size_test = params_dict_cifar['batch_size']
-
+    print(batch_size_test)
+    print(batch_size_train)
     acc = {}
     loss = {}
 
     print('Loading Data... \n')
     data = CIFAR10(0.0,'test')
-    data.prepare_data_act(200)
+    data.prepare_data_grad(100)
     m,s = data.get_mean_std()
     print('Done.')
 
@@ -118,8 +119,8 @@ def activations():
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    m = [CNN_CIFAR_RELU(),CNN_CIFAR_SWISH(),CNN_CIFAR_TANH()]
-    m_names = ['relu','swish','tanh']
+    m = [CNN_CIFAR_SWISH(),CNN_CIFAR_TANH()]
+    m_names = ['swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')

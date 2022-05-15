@@ -343,7 +343,7 @@ class ActivationFunction:
             if (curr_loss > best_loss): #patience
               trigger +=1
               print(f'curr_loss: {curr_loss}, best_loss: {best_loss}')
-              if (trigger >= 7): #wenn patience überschritten wird abbruch training
+              if (trigger >= 10): #wenn patience überschritten wird abbruch training
                 print(f'Early Stopping! Measuring last val Accuracy and loss')
                 stop = True
             else:
@@ -374,29 +374,17 @@ class ActivationFunction:
             
             for k in dict_class.keys():
               dict_class[k] = []
-            _,_ = self.__train(epoch,train)
             
+            a,b = self.__train(epoch,train)
             
-            
-            
-            self.model.eval()
-            for (data,targets) in test:    
-                with torch.no_grad():
-                    set_hook(self.model)
-                    data = data.to(self.device)
-                    targets = targets.to(self.device)
-                    
-                    scores = self.model(data)
-                    matches = [torch.argmax(i) == torch.argmax(j) for i,j in zip(scores,targets)]
-                    acc = matches.count(True)/len(matches)
-                
-                    loss = self.criterion(scores,targets)       
-                    
+            set_hook(self.model)
+            acc, loss = self.__test(epoch,test) 
+            print('before append')        
             for key in activations.keys():
                 grad = activations[key]
                 if key != '':
                   dict_class[key] = np.append(dict_class[key],grad)
-            
+            print('after append')
             l = [dict_class]
             row = (len(dict_class.keys()) /2)
 
@@ -423,7 +411,7 @@ class ActivationFunction:
             if (curr_loss > best_loss): #patience
               trigger +=1
               print(f'curr_loss: {curr_loss}, best_loss: {best_loss}')
-              if (trigger >= 100): #wenn patience überschritten wird abbruch training
+              if (trigger >= 10): #wenn patience überschritten wird abbruch training
                 print(f'Early Stopping! Measuring last val Accuracy and loss')
                 stop = True
             else:

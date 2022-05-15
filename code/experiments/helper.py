@@ -118,7 +118,7 @@ def plot(data,plot_dict,epochs=0):
         axs[1].legend()
         fig.tight_layout()
         classes = plot_dict['class']
-        plt.savefig(f'mnist_grad_{epochs}_{classes}_{act_fn}_{lr}.pdf')
+        plt.savefig(f'grad_{epochs}_{classes}_{act_fn}_{lr}.pdf')
         plt.clf()
         plt.cla()
         plt.close(fig)

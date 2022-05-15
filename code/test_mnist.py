@@ -56,7 +56,7 @@ def accuracy_loss(val=True):
         a.compute(train,test,5)
       
 def gradients():
-    batch_size_train = 1
+    batch_size_train = params_dict_mnist['batch_size']
     batch_size_test = params_dict_mnist['batch_size']
 
     acc = {}
@@ -64,7 +64,7 @@ def gradients():
     #morgen tanh
     print('Loading Data... \n')
     data = MNIST(0.0,'test')
-    data.prepare_data_grad(200)
+    data.prepare_data()
     m,s = data.get_mean_std()
     print('Done.')
 
@@ -81,8 +81,8 @@ def gradients():
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    m = [CNN_MNIST_TANH()]
-    m_names = ['tanh']
+    m = [CNN_MNIST_RELU(),CNN_MNIST_SWISH(),CNN_MNIST_TANH()]
+    m_names = ['relu','swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')
@@ -134,8 +134,8 @@ def activations():
 
 def main():
     #accuracy_loss(val=False)
-    #gradients()
-    activations()
+    gradients()
+    #activations()
     
         
 if __name__== "__main__":

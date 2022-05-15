@@ -221,7 +221,7 @@ class Intel():
                 dat.append(data)
                 labels.append(test_labels[i])
                 counter[5] += 1
-        y_train, y_test = one_hot_encoding(train_labels,labels,10)
+        y_train, y_test = one_hot_encoding(train_labels,labels,6)
 
         d = np.asarray(dat)
         self.dict_images = {'X_train': X_train,
