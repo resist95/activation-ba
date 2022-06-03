@@ -1,13 +1,107 @@
-gleiche für aktivierungen
+problem
 
-oszillierende lr anschaun
+wie ich es lösen will
+
+meilensteine
+
+gliederung
 
 
-tanh und silu gleiche gradienten verteilung
+
+log(x) / num
+
+log(x) / e^-x
+
+log(x) / 1+e^-x
+
+log(x) / 1-e^-x
+
+linear anstieg
+
+treppen anstieg
 
 
-accuracy/loss bei reduzierten trainingsdaten
 
-Anzahl toter Neuronen
+hypothese: Verbesserung der Performanz neuronaler Netze durch Anstieg der Dropout warscheinlichkeit der Neuronen innerhalb des fully connected layers
 
+
+pro ds: 3 Netze (6, 8, 10 conv) (2 fc wobei eine davon softmax fkt)
+
+Beste static dropout für fc schicht finden
+
+beste lr für dieses dropout finden
+
+test des graduellen anstiegs mit dieser lr
+
+
+MNIST
+RELU:
+lr: 0.0001
+drop: 0.9
+log 5
+
+SWISH:
+lr: 0.0001
+drop: 0.9
+
+TANH:
+lr: 0.00008
+drop 0.9
+log 5
+
+CIFAR
+RELU:
+lr: 1e-5
+drop 0.6
+log 4
+
+SWISH:
+lr: 0.0001
+drop 0.9
+
+
+math.log(epoch + 1) / 4
+test von log:
+CIFAR RELU = 0.73
+CIFAR SWISH = 
+CIFAR TANH =
+
+MNIST RELU = 
+MNIST SWISH =
+MNIST TANH = 
+
+INTEL RELU = 
+INTEL SWISH = 
+INTEL TANH = 
+
+1/8 * epoch
+test von lin:
+CIFAR RELU = 0.73
+CIFAR SWISH = 
+CIFAR TANH =
+
+MNIST RELU = 
+MNIST SWISH =
+MNIST TANH = 
+
+INTEL RELU = 
+INTEL SWISH = 
+INTEL TANH = 
+
+test von stepwise : [0,0,0.1,0.1,0.2,0.2,0.3,0.3,0.4,0.4,0.5,0.5,0.6,0.6,0.7,0.7]
+CIFAR RELU = 0.70
+CIFAR SWISH = 
+CIFAR TANH =
+
+MNIST RELU = 
+MNIST SWISH =
+MNIST TANH = 
+
+INTEL RELU = 
+INTEL SWISH = 
+INTEL TANH = 
+
+
+
+(log(x+1)/e^2)
 

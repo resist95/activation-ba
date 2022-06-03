@@ -134,6 +134,7 @@ class Intel():
     def prepare_data(self):
         self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
 
+    #probably outdated
     def prepare_data_grad(self,batch_size):
       #Gradient benoetigt anderes Dictionary
         train_labels = self.labels
@@ -180,7 +181,8 @@ class Intel():
         self.dict_labels = {'y_train': y_train,
                     'y_test': y_test
                     }
-
+    
+    #probably outdated
     def prepare_data_act(self, batch_size):
       #Act benoetigt anderes Dictionary
         test_labels = self.test_labels
@@ -336,6 +338,7 @@ class CIFAR10():
     def prepare_data(self):
       self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
     
+    #probably outdated
     def prepare_data_grad(self,batch_size):
       #siehe intel
       train_labels = self.labels
@@ -399,6 +402,7 @@ class CIFAR10():
                     'y_test': y_test
                     }
     
+    #probably outdated
     def prepare_data_act(self,batch_size):
       #siehe intel
       test_labels = self.test_labels
@@ -627,6 +631,7 @@ class MNIST():
     def prepare_data(self):
       self.__prepare_data(self.images,self.labels,self.test_images,self.test_labels)
     
+    #probably outdated
     def prepare_data_grad(self,batch_size):
       #siehe intel
       train_labels = self.labels
@@ -690,6 +695,7 @@ class MNIST():
                     'y_test': y_test
                     }
     
+    #probably outdated
     def prepare_data_act(self,batch_size):
       #siehe intel
       test_labels = self.test_labels

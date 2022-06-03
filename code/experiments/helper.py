@@ -13,11 +13,11 @@ from torch.utils.tensorboard import SummaryWriter
 sns.set()
 
 #Vorbereitung Writer
-def prepare_summary_writer(name,act_fn,extra):
+def prepare_summary_writer(name,act_fn): #aktuell getestet variabel = name
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
-    x = current_time.replace(':','_')
-    writer = SummaryWriter(f'runs/{name}_{act_fn}_{extra}_{x}')
+    x = current_time.replace(':','_') #benötigt um überschreibung zu vermeiden
+    writer = SummaryWriter(f'runs/{name}_{act_fn}_{x}')
     return writer
 
 #Vorbereitung GPU
@@ -64,25 +64,43 @@ def plot(data,plot_dict,epochs=0):
     num_plots = len(data.keys())  
     lr = plot_dict['lr']
     if plot_dict['type'] == 'hist':
-        fig, axs = plt.subplots(int(plot_dict['row']),int(plot_dict['col']),figsize=(16,9))
+        
         names = []
         for key in data.keys():
             names.append(key)
         i = 0
-        for row in range(plot_dict['row']):
-            for col in range(plot_dict['col']):
-                if i < num_plots:
-                    axs[row,col].hist(data[names[i]],
-                                    bins=plot_dict['bins'],
-                                    label=plot_dict['label'])
-                    axs[row,col].set_title(names[i])
-                i +=1
-        fig.tight_layout()
-        classes = plot_dict['class']
-        plt.savefig(f'mnist_grad_{epochs}_{classes}_{act_fn}_{lr}.pdf')
-        plt.clf()
-        plt.cla()
-        plt.close(fig)
+        if plot_dict['col'] >= 2:
+          fig, axs = plt.subplots(int(plot_dict['row']),int(plot_dict['col']),figsize=(16,9))
+          for row in range(plot_dict['row']):
+              for col in range(plot_dict['col']):
+                  if i < num_plots:
+                      print(np.shape(data[names[i]]))
+                      axs[row,col].hist(data[names[i]],
+                                      bins=plot_dict['bins'],
+                                      label=plot_dict['label'])
+                      axs[row,col].set_title(names[i])
+                  i +=1
+          fig.tight_layout()
+          classes = plot_dict['class']
+          plt.savefig(f'cifar_act_{epochs}_{classes}_{act_fn}_{lr}.pdf')
+          plt.clf()
+          plt.cla()
+          plt.close(fig)
+        else: 
+          fig, axs = plt.subplots(int(plot_dict['row']),figsize=(9,60)) 
+          for row in range(plot_dict['row']):  
+            
+            axs[row].hist(data[names[row]],
+                            bins=plot_dict['bins'],
+                            label=plot_dict['label'])
+            axs[row].set_title(names[row])
+            fig.tight_layout()
+            classes = plot_dict['class']
+          plt.savefig(f'cifar_act_{epochs}_{row}_{classes}_{act_fn}_{lr}.pdf')
+          plt.clf()
+          plt.cla()
+          plt.close(fig)
+           
     elif plot_dict['type'] == 'line':
         fig, axs = plt.subplots(2)
         
@@ -118,7 +136,7 @@ def plot(data,plot_dict,epochs=0):
         axs[1].legend()
         fig.tight_layout()
         classes = plot_dict['class']
-        plt.savefig(f'grad_{epochs}_{classes}_{act_fn}_{lr}.pdf')
+        plt.savefig(f'acc_loss_{act_fn}_{lr}_fill.pdf')
         plt.clf()
         plt.cla()
         plt.close(fig)
@@ -149,6 +167,7 @@ def plot(data,plot_dict,epochs=0):
         fig, axs = plt.subplots(counter_conv,figsize=(16,9))
         l = 0
         for i,n in enumerate(names):
+          
           if 'conv' in n:
             axs[l].hist(data[names[i]],
                              bins=plot_dict['bins'],
@@ -180,7 +199,6 @@ def plot(data,plot_dict,epochs=0):
         plt.cla()
         plt.close(fig)
 
-        print(counter_pool)
         fig, axs = plt.subplots(counter_pool,figsize=(16,9))
         l = 0
         for i,n in enumerate(names):
@@ -229,7 +247,7 @@ def plot(data,plot_dict,epochs=0):
         plt.cla()
         plt.close(fig)
 
-        fig, axs = plt.subplots((counter_drop+1),figsize=(16,9))
+        fig, axs = plt.subplots(((counter_drop+1)),figsize=(16,9))
         l = 0
         for i,n in enumerate(names):
           if 'drop' in n:
@@ -261,6 +279,23 @@ def get_activations(name):
       activations[name] = output.view(-1).cpu().detach().numpy()
     return hook
 
+def get_activations_feature_map(name):
+    def hook(module,input,output):
+      activations[name] = output.cpu().detach().numpy()
+    return hook
+
+def get_activations_input(name):
+    def hook(module,input,output):
+
+      activations[name] = input[0].view(-1).cpu().detach().numpy()
+    return hook
+
+def get_activations_feature_map_input(name):
+    def hook(module,input,output):
+      if 'conv' in name:
+        activations[name] = input[0].cpu().detach().numpy()
+    return hook
+
 #Berechnung Gradienten pro Layer
 def get_gradients(model,p):
     grad = {}
@@ -273,6 +308,9 @@ def get_gradients(model,p):
                 if 'pool'  not in layer_name : 
                     if 'drop' not in layer_name :
                         for name, param in layer.named_parameters():
+                            if isinstance(layer,nn.ReLU):
+                              if p in name:
+                                    grad[layer_name] = param.view(-1).cpu().detach().numpy()
                             if isinstance(layer, nn.Linear):
                                 if p in name:
                                     grad[layer_name] = param.view(-1).cpu().detach().numpy()
@@ -298,3 +336,156 @@ def set_hook(model):
       set_hook(layer)
     else:
       layer.register_forward_hook(get_activations(name))
+
+def set_hook_feature_map(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_hook_feature_map(layer)
+    else:
+      layer.register_forward_hook(get_activations_feature_map(name))
+
+def set_hook_in(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_hook(layer)
+    else:
+      layer.register_forward_hook(get_activations_input(name))
+
+def set_hook_feature_map_in(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_hook_feature_map(layer)
+    else:
+      layer.register_forward_hook(get_activations_feature_map_input(name))
+
+
+
+
+#backward#####
+
+gradients = {}
+gradients_in = {}
+def get_grads_input(name,i):
+    def hook(module,input,output):
+      n = f'{name}_{i}'
+      gradients_in[n] = input[0].view(-1).cpu().detach().numpy()
+    return hook
+
+def get_grads_output(name,i):
+  def hook(module,input,output):
+      n = f'{name}_{i}'
+      gradients[n] = output[0].view(-1).cpu().detach().numpy()
+  return hook
+
+def set_backward_hook(model):
+  i = 0
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_backward_hook(layer)
+    else:
+      if isinstance(layer, nn.ReLU):
+        layer.register_full_backward_hook(get_grads_input(name,i))
+        i = i + 1
+      if isinstance(layer, nn.SiLU):
+        layer.register_full_backward_hook(get_grads_input(name,i))
+        i = i + 1
+      if isinstance(layer, nn.Tanh):
+        layer.register_full_backward_hook(get_grads_input(name,i))
+        i = i + 1
+
+def set_backward_hook_out(model):
+  i = 0
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_backward_hook_out(layer)
+    else:
+      if isinstance(layer, nn.ReLU):
+        layer.register_full_backward_hook(get_grads_output(name,i))
+        i = i + 1
+      if isinstance(layer, nn.SiLU):
+        layer.register_full_backward_hook(get_grads_output(name,i))
+        i = i + 1
+      if isinstance(layer, nn.Tanh):
+        layer.register_full_backward_hook(get_grads_output(name,i))
+        i = i + 1
+
+def set_backward_hook_in_out(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_backward_hook(layer)
+    else:
+      if isinstance(layer, nn.ReLU):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+
+      if isinstance(layer, nn.SiLU):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+
+      if isinstance(layer, nn.Tanh):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+
+def get_grads_in_out(name):
+  def hook(module,input,output):
+      
+      gradients[name] = output[0].view(-1).cpu().detach().numpy()
+      if 'conv1' not in name:
+        gradients_in[name] = input[0].view(-1).cpu().detach().numpy()
+  return hook
+
+def set_backward_hook_in_out_all_layers(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_backward_hook(layer)
+    else:
+      if isinstance(layer, nn.ReLU):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.SiLU):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.Tanh):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.Conv2d):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.MaxPool2d):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.BatchNorm2d):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.Dropout):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.Linear):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      if isinstance(layer, nn.AvgPool2d):
+        layer.register_full_backward_hook(get_grads_in_out(name))
+      
+
+def set_backward_hook_out_all_layers(model):
+  for name, layer in model.named_modules():
+    if isinstance(layer,nn.Sequential):
+      set_backward_hook_out(layer)
+    else:
+      if isinstance(layer, nn.ReLU):
+        layer.register_full_backward_hook(get_grads_output(name,acti))
+        acti = acti + 1
+      if isinstance(layer, nn.SiLU):
+        layer.register_full_backward_hook(get_grads_output(name,acti))
+        acti = acti + 1
+      if isinstance(layer, nn.Tanh):
+        layer.register_full_backward_hook(get_grads_output(name,acti))
+        acti = acti + 1
+      
+      if isinstance(layer, nn.Conv2d):
+        layer.register_full_backward_hook(get_grads_output(name,conv))
+        conv = conv + 1
+      if isinstance(layer, nn.MaxPool2d):
+        layer.register_full_backward_hook(get_grads_output(name,pool))
+        pool = pool +1
+      if isinstance(layer, nn.BatchNorm2d):
+        layer.register_full_backward_hook(get_grads_output(name,bn))
+        bn = bn +1
+      if isinstance(layer, nn.Dropout):
+        layer.register_full_backward_hook(get_grads_output(name,drop))
+        drop = drop +1
+      if isinstance(layer, nn.Linear):
+        layer.register_full_backward_hook(get_grads_output(name,fc))
+        fc = fc +1
+      if isinstance(layer, nn.AvgPool2d):
+        layer.register_full_backward_hook(get_grads_output(name,avg))
+        avg = avg +1

@@ -5,11 +5,12 @@ import numpy as np
 
 #aufsplitten in train und validation data
 def train_validate_split(X_train,y_train,test_size=0):
-    X_t, y_t = shuffle(X_train,y_train)
-    X_tr, X_val, y_tr, y_val = train_test_split(X_t,y_t,test_size=test_size)
+    X_t, y_t = shuffle(X_train,y_train) #shuffle funktion von sklearn zur durchmischung von trainingsdaten fuer validation
+    X_tr, X_val, y_tr, y_val = train_test_split(X_t,y_t,test_size=test_size) #aufteilung in training und validation 
     return X_tr,y_tr,X_val,y_val
 
 #shufflen train data, da nn mit gleichen daten arbeiten sollen wird shuffle von pytorch deaktiviert
+#wirft value error bei test_size 0 deshalb extra funktion
 def shuffle_train_data(X_train,y_train):
     X_t, y_t = shuffle(X_train,y_train)
     return X_t,y_t

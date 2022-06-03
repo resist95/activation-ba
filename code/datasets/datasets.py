@@ -6,8 +6,6 @@ from torch.utils.data import Dataset
 import sys
 import os
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
-
 class CustomDataset(Dataset):
     def __init__(self,images,labels):
         self.images = images
