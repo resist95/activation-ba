@@ -6,7 +6,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
 
 from datasets.data import Intel
 from datasets.datasets import CustomDataset
-from models.intel import CNN_INTEL_RELU,CNN_INTEL_SWISH,CNN_INTEL_TANH
+from models.intel import CNN_INTEL_RELU,CNN_INTEL_SWISH,CNN_INTEL_TANH, CNN_INTEL_RELU_drop_sched_1
 
 from experiments.parameters import params_dict_intel
 from experiments.activation import ActivationFunction
@@ -14,10 +14,9 @@ from experiments.activation import ActivationFunction
 from torch.utils.tensorboard import SummaryWriter
 
 
-#from models.intel import CNN_INTEL_TANH_drop_0,CNN_INTEL_TANH_drop_1,CNN_INTEL_TANH_drop_2,CNN_INTEL_TANH_drop_3,CNN_INTEL_TANH_drop_4,CNN_INTEL_TANH_drop_5,CNN_INTEL_RELU_drop_6
-#from models.intel import CNN_INTEL_RELU_drop_0,CNN_INTEL_RELU_drop_1,CNN_INTEL_RELU_drop_2,CNN_INTEL_RELU_drop_3,CNN_INTEL_RELU_drop_4,CNN_INTEL_RELU_drop_5,CNN_INTEL_RELU_drop_6
-from models.intel import CNN_INTEL_RELU_drop_sched
-#from models.intel import CNN_INTEL_SWISH_drop_0,CNN_INTEL_SWISH_drop_1,CNN_INTEL_SWISH_drop_2,CNN_INTEL_SWISH_drop_3,CNN_INTEL_SWISH_drop_4,CNN_INTEL_SWISH_drop_5
+from models.intel import CNN_INTEL_TANH_drop_sched_0
+from models.intel import CNN_INTEL_RELU_drop_sched_0
+from models.intel import CNN_INTEL_SWISH_drop_sched_0
 def accuracy_loss(val=True):
     batch_size_train = params_dict_intel['batch_size']
     batch_size_test = params_dict_intel['batch_size']
@@ -47,7 +46,7 @@ def accuracy_loss(val=True):
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    m = [CNN_INTEL_RELU(),CNN_INTEL_SWISH(),CNN_INTEL_TANH()]
+    m = [CNN_INTEL_RELU_drop_sched_1()]
     m_names = ['relu','swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
@@ -56,8 +55,8 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
 
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,'INTEL_REFERENZ_TO_BEAT_{m_names[i]}',params_dict_intel,m_names[i])
-        a.compute(train,test,7)
+        a = ActivationFunction(model,f'INTEL_DROP_SCHED_LINEAR_32x+0.1_{m_names[i]}',params_dict_intel,m_names[i])
+        a.compute_drop_sched(train,test,7)
 
 def accuracy_loss_sched(val=True):
     batch_size_train = params_dict_intel['batch_size']

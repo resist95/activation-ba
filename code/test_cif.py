@@ -7,9 +7,9 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
 from datasets.data import CIFAR10
 from datasets.datasets import CustomDataset
 from models.cifar import CNN_CIFAR_RELU,CNN_CIFAR_SWISH,CNN_CIFAR_TANH
-from models.cifar import CNN_CIFAR_RELU_drop_sched_0,CNN_CIFAR_RELU_drop_sched_1,CNN_CIFAR_RELU_drop_sched_2,CNN_CIFAR_RELU_drop_sched_3,CNN_CIFAR_RELU_drop_sched_4,CNN_CIFAR_RELU_drop_sched_5
-from models.cifar import CNN_CIFAR_SWISH_drop_sched_0, CNN_CIFAR_SWISH_drop_sched_1, CNN_CIFAR_SWISH_drop_sched_2, CNN_CIFAR_SWISH_drop_sched_3
-from models.cifar import CNN_CIFAR_TANH_drop_sched_0,CNN_CIFAR_TANH_drop_sched_1,CNN_CIFAR_TANH_drop_sched_2,CNN_CIFAR_TANH_drop_sched_3,CNN_CIFAR_TANH_drop_sched_4
+from models.cifar import CNN_CIFAR_RELU_drop_sched_0
+from models.cifar import CNN_CIFAR_SWISH_drop_sched_0
+from models.cifar import CNN_CIFAR_TANH_drop_sched_0
 from experiments.parameters import params_dict_cifar
 from experiments.activation import ActivationFunction
 
@@ -45,7 +45,7 @@ def accuracy_loss(val=True):
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
     
-    m = [CNN_CIFAR_RELU(),CNN_CIFAR_SWISH(),CNN_CIFAR_TANH()]
+    m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
             
     m_names = ['relu','swish','tanh']
     
@@ -55,7 +55,7 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
 
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,f'CIFAR_REFERENZ_TO_BEAT_{m_names[i]}',params_dict_cifar,m_names[i])
+        a = ActivationFunction(model,f'CIFAR__DROP_SCHED_LINEAR_32x+0.1_{m_names[i]}',params_dict_cifar,m_names[i])
         a.compute_drop_sched(train,test,10)
 
 def gradients():

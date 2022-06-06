@@ -7,7 +7,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
 from datasets.data import MNIST
 from datasets.datasets import CustomDataset
 from models.mnist import CNN_MNIST_RELU,CNN_MNIST_SWISH,CNN_MNIST_TANH
-
+from models.mnist import CNN_MNIST_RELU_drop_sched_0,CNN_MNIST_SWISH_drop_sched_0,CNN_MNIST_TANH_drop_sched_0
 from experiments.parameters import params_dict_mnist
 from experiments.activation import ActivationFunction
 from experiments.activation import plot_single
@@ -44,7 +44,7 @@ def accuracy_loss(val=True):
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
 
-    m = [CNN_MNIST_RELU(),CNN_MNIST_SWISH(),CNN_MNIST_TANH()]
+    m = [CNN_MNIST_RELU_drop_sched_0(),CNN_MNIST_SWISH_drop_sched_0(),CNN_MNIST_TANH_drop_sched_0()]
     m_names = ['relu','swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
@@ -52,8 +52,8 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
         n = m_names[i]
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,'MNIST_REFERENZ_TO_BEAT_{n}',params_dict_mnist,m_names[i])
-        a.compute(train,test,10)
+        a = ActivationFunction(model,'MNIST_DROP_SCHED_log_i+3_4_{n}',params_dict_mnist,m_names[i])
+        a.compute_drop_sched(train,test,10)
       
 def gradients():
     batch_size_train = params_dict_mnist['batch_size']

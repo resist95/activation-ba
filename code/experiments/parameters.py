@@ -11,27 +11,29 @@ import sys
 #    'lr_swish': 0.0007,
 #    'lr_tanh' : 0.001,
 
-# fc drop 0.6
-#    'lr_relu' : 0.00001, 
+# fc drop 0.8
+#        'lr_relu' : 0.00003,
+#    'lr_swish': 0.00007,
+#    'lr_tanh' : 0.00001,
 
 params_dict_cifar = {
-    'lr_relu' : 0.00003,
-    'lr_swish': 0.00007,
-    'lr_tanh' : 0.00005,
+    'lr_relu' : 0.00001,
+    'lr_swish': 0.00001,
+    'lr_tanh' : 0.00001,
     'batch_size' : 64,
     'max_epochs' :100,
     'classes' : 10,
     'weight_decay': 0.000125
 }
 
-#'lr_relu' : 0.0004,
-#    'lr_swish': 0.0009,
-#    'lr_tanh' : 0.0001,
+#'    'lr_relu' : 0.00001,
+#    'lr_swish': 0.00003,
+#    'lr_tanh' : 0.00003,
 
 params_dict_intel = {
-    'lr_relu' : 0.00007,
-    'lr_swish': 0.0001,
-    'lr_tanh' : 0.0001,
+    'lr_relu' : 0.00001,
+    'lr_swish': 0.00001,
+    'lr_tanh' : 0.00001,
     'batch_size' : 64,
     'classes' : 6,
     'max_epochs' :40,
