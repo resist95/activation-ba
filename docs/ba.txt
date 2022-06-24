@@ -1,0 +1,34 @@
+Abstract
+
+Neuronale Netze lernen anhand von Trainingsdaten, die Parameter und dessen Gewichtungen
+für die Problemklassen zu erkennen. Diese Gewichtungen werden während des
+Trainingsprozesses zahlreiche Male angepasst, was allgemein als Lernen des neuronalen
+Netzes bezeichnet wird. Mit Dauer des Lernens kommt es jedoch immer mehr zu einer Überanpassung 
+der Gewichte, welches die Abnahme der Testgenauigkeit zur Folge hat. 
+Um diesen Problem entgegen zu wirken, wurden verschiedene Regularisierungsmechanismen 
+entwickelt. Diese Arbeit befasst sich mit einem dieser Mechanismen, dem 
+Dropout. Es wird hierbei ein genauerer Einblick in die Funktionsweise des
+Dropouts gewährt. Desweiteren werden unterschiedliche Dropout Methoden 
+miteinander verglichen und eine alternative zu den bestehenden Methoden 
+vorgestellt.
+
+
+
+Einleitung
+
+Durch neue Erkenntnisse im Jahr <Jahr>, welche durch das <Netzname> Netz 
+von <Prof> vorgestellt wurde, begann der Aufschwung der Neuronalen Netze. 
+Hierbei wurden jährlich zahlreiche neue Netzarchitekturen vorgestellt und 
+die Größe der Netze stieg stark an. Jedes der seitdem entstandenen Netze
+befasst sich mit der Bewältigung des gleichen Problems, das Problem der 
+Überanpassung der Trainingsdaten.
+
+Um diesen Problem entgegen zu wirken, wurden zahlreiche Mechanismen untersucht
+die ein solches Overfitting bremsen und dadurch die Performanz der Netze steigern.
+Eines dieser Mechanismen ist das Dropout. 
+
+
+
+
+
+

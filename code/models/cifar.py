@@ -271,14 +271,20 @@ class CNN_CIFAR_RELU_drop_sched_0(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')  
     
+    def update(self,d):
+        self.drop_fc = nn.Dropout(d)
+        return d
+    
     def update_drop(self,epoch):
-        drop_rate = 1/16 * epoch +0.1
-        if drop_rate < 0.7:
+
+        drop_rate = math.log(epoch+1) / math.exp(1.5)
+        if drop_rate < 0.9:
             self.drop_fc = nn.Dropout(drop_rate)
-        else:
-            drop_rate = 0.7
-            self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
+            return drop_rate
+        else: 
+            self.drop_fc = nn.Dropout(0.9)
+            return 0.9
+
 
     def forward(self,x):
         x = self.relu(self.bn1(self.conv1(x)))
@@ -338,14 +344,19 @@ class CNN_CIFAR_SWISH_drop_sched_0(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.kaiming_normal_(m.weight,mode='fan_out',nonlinearity='leaky_relu')
     
+    def update(self,d):
+        self.drop_fc = nn.Dropout(d)
+        return d
+    
     def update_drop(self,epoch):
-        drop_rate = 1/16 * epoch +0.1
-        if drop_rate < 0.7:
+        drop_rate = math.log(epoch+1) / math.exp(1.5)
+        if drop_rate < 0.9:
             self.drop_fc = nn.Dropout(drop_rate)
-        else:
-            drop_rate = 0.7
-            self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
+            return drop_rate
+        else: 
+            self.drop_fc = nn.Dropout(0.9)
+            return 0.9
+
     
     def forward(self,x):
         x = self.silu(self.bn1(self.conv1(x)))
@@ -410,14 +421,19 @@ class CNN_CIFAR_TANH_drop_sched_0(nn.Module):
             elif isinstance(m, nn.Linear):
                 nn.init.xavier_normal_(m.weight,1)  
     
+    def update(self,d):
+        self.drop_fc = nn.Dropout(d)
+        return d
+    
     def update_drop(self,epoch):
-        drop_rate = 1/16 * epoch +0.1
-        if drop_rate < 0.7:
+
+        drop_rate = math.log(epoch+1) / math.exp(1.5)
+        if drop_rate < 0.9:
             self.drop_fc = nn.Dropout(drop_rate)
-        else:
-            drop_rate = 0.7
-            self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
+            return drop_rate
+        else: 
+            self.drop_fc = nn.Dropout(0.9)
+            return 0.9
     
     def forward(self,x):
         x = self.drop1(self.tanh(self.bn1(self.conv1(x))))

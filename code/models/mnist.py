@@ -142,20 +142,27 @@ class CNN_MNIST_RELU_drop_sched_0(nn.Module):
     self.bn4 = nn.BatchNorm2d(32)
 
     self.drop1 = nn.Dropout(0.0)
-    self.drop_fc = nn.Dropout(0.0)
+    self.drop_fc = nn.Dropout(0.5)
 
     self.fc1 = nn.Linear(2048,128)
     self.fc2 = nn.Linear(128,10)
   
+  def update(self,d):
+    self.drop_fc = nn.Dropout(d)
+    return d
   def update_drop(self,i):
-    drop_rate = math.log(i+3) / 4
     
-    if drop_rate < 0.8:
-        self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
-    else: 
-        self.drop_fc = nn.Dropout(0.8)
-        return 0.8
+    if i > 0:
+      drop_rate = math.log(i) / math.exp(1.5)
+      if drop_rate < 0.8:
+          self.drop_fc = nn.Dropout(drop_rate)
+          return drop_rate
+      else: 
+          self.drop_fc = nn.Dropout(0.8)
+          return 0.8
+    else:
+      self.drop_fc = nn.Dropout(0)
+      return 0
   
   def forward(self,x):
     x = self.relu(self.bn1(self.conv1(x)))
@@ -186,20 +193,27 @@ class CNN_MNIST_SWISH_drop_sched_0(nn.Module):
 
 
     self.drop1 = nn.Dropout(0.0)
-    self.drop_fc = nn.Dropout(0.0)
+    self.drop_fc = nn.Dropout(0.5)
 
     self.fc1 = nn.Linear(2048,128)
     self.fc2 = nn.Linear(128,10)
   
+  def update(self,d):
+    self.drop_fc = nn.Dropout(d)
+    return d
   def update_drop(self,i):
-    drop_rate = math.log(i+3) / 4
     
-    if drop_rate < 0.8:
-        self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
-    else: 
-        self.drop_fc = nn.Dropout(0.8)
-        return 0.8
+    if i > 0:
+      drop_rate = math.log(i) / math.exp(1.5)
+      if drop_rate < 0.8:
+          self.drop_fc = nn.Dropout(drop_rate)
+          return drop_rate
+      else: 
+          self.drop_fc = nn.Dropout(0.8)
+          return 0.8
+    else:
+      self.drop_fc = nn.Dropout(0)
+      return 0
   
   def forward(self,x):
     x = self.silu(self.bn1(self.conv1(x)))
@@ -229,20 +243,27 @@ class CNN_MNIST_TANH_drop_sched_0(nn.Module):
     self.bn4 = nn.BatchNorm2d(32)
 
     self.drop1 = nn.Dropout(0.0)
-    self.drop_fc = nn.Dropout(0.0)
+    self.drop_fc = nn.Dropout(0.5)
 
     self.fc1 = nn.Linear(2048,128)
     self.fc2 = nn.Linear(128,10)
   
+  def update(self,d):
+    self.drop_fc = nn.Dropout(d)
+    return d
   def update_drop(self,i):
-    drop_rate = math.log(i+3) / 4
     
-    if drop_rate < 0.8:
-        self.drop_fc = nn.Dropout(drop_rate)
-        return drop_rate
-    else: 
-        self.drop_fc = nn.Dropout(0.8)
-        return 0.8
+    if i > 0:
+      drop_rate = math.log(i) / math.exp(1.5)
+      if drop_rate < 0.8:
+          self.drop_fc = nn.Dropout(drop_rate)
+          return drop_rate
+      else: 
+          self.drop_fc = nn.Dropout(0.8)
+          return 0.8
+    else:
+      self.drop_fc = nn.Dropout(0)
+      return 0
   
   def forward(self,x):
     x = self.tanh(self.bn1(self.conv1(x)))

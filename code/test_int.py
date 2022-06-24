@@ -6,7 +6,8 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
 
 from datasets.data import Intel
 from datasets.datasets import CustomDataset
-from models.intel import CNN_INTEL_RELU,CNN_INTEL_SWISH,CNN_INTEL_TANH, CNN_INTEL_RELU_drop_sched_1
+from models.intel import CNN_INTEL_RELU,CNN_INTEL_SWISH,CNN_INTEL_TANH
+from models.intel import CNN_INTEL_RELU_drop_sched_0,CNN_INTEL_SWISH_drop_sched_0,CNN_INTEL_TANH_drop_sched_0
 
 from experiments.parameters import params_dict_intel
 from experiments.activation import ActivationFunction
@@ -46,7 +47,7 @@ def accuracy_loss(val=True):
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    m = [CNN_INTEL_RELU_drop_sched_1()]
+    m = [CNN_INTEL_RELU_drop_sched_0(),CNN_INTEL_SWISH_drop_sched_0(),CNN_INTEL_TANH_drop_sched_0()]
     m_names = ['relu','swish','tanh']
 
     print('Before test start make sure that you have set the correct parameters')
@@ -55,8 +56,44 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
 
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,f'INTEL_DROP_SCHED_LINEAR_32x+0.1_{m_names[i]}',params_dict_intel,m_names[i])
-        a.compute_drop_sched(train,test,7)
+        a = ActivationFunction(model,f'INTEL_DROP_SCHED_logi+3_6_{m_names[i]}',params_dict_intel,m_names[i])
+        a.compute_drop_sched(train,test,15)
+
+def accuracy_loss_batch():
+    batch_size_train = params_dict_intel['batch_size']
+    batch_size_test = params_dict_intel['batch_size']
+
+    print('Loading Data... \n')
+
+    data = Intel(0.0,'test')
+    data.prepare_data()
+    m,s = data.get_mean_std()
+    print('Done.')
+
+    dataset = CustomDataset
+
+    print('Loading train and test samples into DataLoader... \n')
+    X_train,y_train = data.get_data('train')
+    X_test, y_test = data.get_data('test')
+    
+    train = dataset(X_train,y_train)
+    test = dataset(X_test,y_test)
+    train.set_mean_std(m,s)
+    test.set_mean_std(m,s)
+    train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+    test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+    print('Done')
+    m = [CNN_INTEL_RELU_drop_sched_0()]
+    m_names = ['relu']
+
+    print('Before test start make sure that you have set the correct parameters')
+    input('Press any key to continue...')
+
+    for i,model in enumerate(m):
+
+        print(f'Training CNN with activation function [{m_names[i]}]')
+        a = ActivationFunction(model,f'INTEL_DROP_drop_log_var7_g0.7{m_names[i]}',params_dict_intel,m_names[i])
+        a.compute_drop_sched_batch(train,test,15,'drop_log_var7')
 
 def accuracy_loss_sched(val=True):
     batch_size_train = params_dict_intel['batch_size']
@@ -452,7 +489,8 @@ def gradients_input_output_all_layers():
         a = ActivationFunction(model,'gradient_input',params_dict_intel,m_names[i])
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 def main():
-    accuracy_loss(val=False)
+    #accuracy_loss(val=False)
+    accuracy_loss_batch()
     #feature_map()
     #gradients()
     #activations()

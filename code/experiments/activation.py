@@ -25,6 +25,7 @@ from experiments.helper import set_backward_hook_in_out
 class ActivationFunction:
     def __init__(self,model,param,dict,act_fn):
         self.model = model #aktuell zu trainierende modell
+        self.lv = 1
         self.dict = {
             'act_fn' : act_fn,  #aktuelle aktivierungsfunktion
             'lr' : dict[f'lr_{act_fn}'],  #learn rate variabel pro akt.fkt.
@@ -79,23 +80,150 @@ class ActivationFunction:
         self.writer.add_scalar('Mean Loss Train',mean_loss,epoch)
         return mean_acc,mean_loss
     
-    def __train_batch(self,epoch,train):
+    def _prob(self,x,mode):
+      
+      if mode == 'drop_cur':
+        gamma = 0.001
+        d = 0.5      
+        return (1.-d)*np.exp(-gamma*x)+d
+      if mode == 'drop_ann':
+        gamma = 0.001
+        d = 0.5      
+        if (1.-d)* np.exp(- gamma * x) < 0.9:
+          return (1.-d)* np.exp(- gamma * x)
+        else:
+          return 0.9
+      if mode == 'drop_log':
+        gamma = 0.001
+        d = 0.5
+        if d*(np.log(x) / np.exp(2-(gamma*d))) < 0.9:
+          return d*(np.log(x) / np.exp(2-(gamma*d)))
+        else:
+          return 0.9
+      if mode == 'drop_log_var2':
+        gamma = 0.001
+        d = 0.4
+        if (0.1+d)*(np.log(x) / np.exp(2-(gamma*d))) < 0.9:
+          return (0.1+d)*(np.log(x) / np.exp(2-(gamma*d)))
+        else:
+          return 0.9
+      
+      if mode == 'drop_log_var3':
+        gamma = 0.001
+        d = 0.5
+        if (0.1+d)*(np.log(x) / np.exp(2-(gamma*d))) < 0.9:
+          return (0.1+d)*(np.log(x+2) / np.exp(2-(gamma*d)))
+        else:
+          return 0.9
+      if mode == 'drop_log_var4':
+        gamma = 0.001
+        d = 0.5
+        if (1-d)*(np.log(x) / np.exp(2-(gamma*d)))+0.1 < 0.9:
+          return (1-d)*(np.log(x) / np.exp(2-(gamma*d)))+0.1
+        else:
+          return 0.9
+      if mode == 'drop_log_var5':
+        gamma = 0.0001
+        d = 0.5
+        if (1-d)*(np.log(x) / np.exp(2-(gamma*d)))+0.25 < 0.9:
+          return (1-d)*(np.log(x) / np.exp(2-(gamma*d)))+0.25
+        else:
+          return 0.9
+      if mode == 'drop_log_var6':
+        gamma = 0.0001
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(2-(gamma*d)))+0.25 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(2-(gamma*d)))+0.25
+        else:
+          return 0.9
+      if mode == 'drop_log_var7':
+        gamma = 0.8
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(2+(gamma*d)))+0.25 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(2+(gamma*d)))+0.25
+        else:
+          return 0.9
+      if mode == 'drop_log_var8':
+        gamma = 0.16
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(2+(0.04)))+0.25 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(2+(0.04)))+0.25
+        else:
+          return 0.9
+      if mode == 'drop_log_var9':
+        gamma = 0.16
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(3-(0.00001*x)))+0.5 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(3-(0.00001*x)))+0.5
+        else:
+          return 0.9
+      if mode == 'drop_log_var10':
+        gamma = 0.16
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(3-(0.00002*x)))+0.5 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(3-(0.00002*x)))+0.5
+        else:
+          return 0.9
+      if mode == 'drop_log_var11':
+        gamma = 0.16
+        d = 0.25
+        if (1-0.5)*(np.log(x) / np.exp(3-(0.000007*x)))+0.5 < 0.9:
+          return (1-0.5)*(np.log(x) / np.exp(3-(0.000007*x)))+0.5
+        else:
+          return 0.9
+      if mode == 'drop_curr_var2':
+        gamma =  0.0001
+        #d = 0.5
+        #d = 0.6
+        d = 0.25
+        #d = 0
+        if -(1-d)*np.exp(-gamma*x)+1 < 0.9:
+          return -(1-d)*np.exp(-gamma*x)+1
+        else:
+          return 0.9  
+      if mode == 'drop_curr_var3':
+        gamma =  0.00001
+        d = 0.5
+        if -(1-d)*np.exp(-gamma*x)+1 < 0.9:
+          return -(1-d)*np.exp(-gamma*x)+1
+        else:
+          return 0.9
+      if mode == 'drop_curr_var4':
+        gamma =  0.0001
+        d = 0.5
+        if - np.exp(-gamma*x)+1 < 0.9:
+          return - np.exp(-gamma*x)+1
+        else:
+          return 0.9
+      if mode == 'drop_curr_var5':
+        #gamma =  0.0001
+        gamma =  0.00007
+        d = 0.5
+        if -(1-0.5)* np.exp(-gamma*x)+1 < 0.9:
+          return -(1-0.5)* np.exp(-gamma*x)+1
+        else:
+          return 0.9  
+      if mode == 'normal':
+        d = 0.5
+        return d
+
+    def __train_batch(self,epoch,train,mode):
         self.model.train()
         acc = 0.0 
         loss = 0.0
-        drop = self.model.update_drop(0)
         for idx,(data,targets) in enumerate(train):
             
-            drop = self.model.update_drop(idx)
-            if idx % 100 == 0:
-              print(f'Dropout: {drop}')
-            
-            data = data.to(self.device)
-            targets = targets.to(self.device)
-            
-            accs, losses = self.__evaluate(data,targets,train=True)
-            loss += losses * data.size(0) #aufaddieren loss und acc pro batch
-            acc += accs * data.size(0)
+          drop = self.model.update(self._prob(self.lv,mode))
+          self.writer.add_scalar('Dropout rate',drop,self.lv)
+          if idx % 10 == 0:
+            print(f'Dropout: {drop}')
+          self.lv = self.lv + 1
+          data = data.to(self.device)
+          targets = targets.to(self.device)
+          
+          accs, losses = self.__evaluate(data,targets,train=True)
+          loss += losses * data.size(0) #aufaddieren loss und acc pro batch
+          acc += accs * data.size(0)
         
         mean_acc = acc / len(train.dataset) #berchnung mittlere accuracy des batches
         mean_loss = loss / len(train.dataset)
@@ -261,7 +389,7 @@ class ActivationFunction:
               break
         self.dict['epochs'] = len(train_acc)
     
-    def compute_drop_sched_batch(self,train,test,patience):
+    def compute_drop_sched_batch(self,train,test,patience,mode,log=False):
         best_loss = 100
         trigger = 0 
         stop = False #benoetigt fuer early stopping
@@ -275,7 +403,7 @@ class ActivationFunction:
         i = 0.0
         for epoch in range(n_epochs):
             
-            acc,loss = self.__train_batch(epoch,train)
+            acc,loss = self.__train_batch(epoch,train,mode)
             train_acc.append(acc)
             train_loss.append(loss)
             
@@ -297,7 +425,22 @@ class ActivationFunction:
               trigger = 0
             if stop == True:
               break
-        self.dict['epochs'] = len(train_acc)
+        if log == True:
+          f = open('test_acc.txt','w+')
+          ff = open('train_acc.txt','w+')
+          fff = open('test_loss.txt','w+')
+          ffff = open('train_loss.txt','w+')
+          for lv,i in enumerate(test_acc):
+            f.write(f'{i}\n')
+            ff.write(f'{train_acc[lv]}\n')
+            fff.write(f'{test_loss[lv]}\n')
+            ffff.write(f'{train_loss[lv]}\n')
+          f.close()
+          ff.close()
+          fff.close()
+          ffff.close()
+
+        
     
     def compute_gradients_per_class(self,train,test,patience):
         best_loss = 100

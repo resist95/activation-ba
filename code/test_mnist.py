@@ -52,9 +52,49 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
         n = m_names[i]
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,'MNIST_DROP_SCHED_log_i+3_4_{n}',params_dict_mnist,m_names[i])
-        a.compute_drop_sched(train,test,10)
-      
+        a = ActivationFunction(model,'MNIST_DROP_SCHED_log_i_exp1_5_{n}',params_dict_mnist,m_names[i])
+        a.compute_drop_sched(train,test,15)
+
+def accuracy_loss_batch():
+    batch_size_train = params_dict_mnist['batch_size']
+    batch_size_test = params_dict_mnist['batch_size']
+
+    print('Loading Data... \n')
+
+    data = MNIST(0.0,'test')
+    data.prepare_data()
+    m,s = data.get_mean_std()
+    print('Done.')
+
+    dataset = CustomDataset
+
+    print('Loading train and test samples into DataLoader... \n')
+    X_train,y_train = data.get_data('train')
+    X_test, y_test = data.get_data('test')
+    
+    train = dataset(X_train,y_train)
+    test = dataset(X_test,y_test)
+    train.set_mean_std(m,s)
+    test.set_mean_std(m,s)
+    train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+    test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+    print('Done')
+
+    
+
+    print('Before test start make sure that you have set the correct parameters')
+    input('Press any key to continue...')
+    gamma_range = np.arange(0.152,0.175,0.001)
+    for g in range(len(gamma_range)):
+        print('gamma',gamma_range[g])
+        gg = gamma_range[g]
+        for i in range(1):
+            m = [CNN_MNIST_RELU_drop_sched_0()]
+            m_names = ['relu']
+            n = m_names[i]
+            print(f'Training CNN with activation function [{m_names[i]}]')
+            a = ActivationFunction(m[i],f'MNIST_DROP_drop_log_var8_{gg}_{n}',params_dict_mnist,m_names[i])
+            a.compute_drop_sched_batch(train,test,50,'drop_log_var8',gamma_range[g]) 
 def gradients():
     batch_size_train = params_dict_mnist['batch_size']
     batch_size_test = params_dict_mnist['batch_size']
@@ -400,7 +440,8 @@ def gradients_input_output_all_layers():
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 
 def main():
-    accuracy_loss(val=False)
+    #accuracy_loss(val=False)
+    accuracy_loss_batch()
     #feature_map()
     #gradients()
     #activations()

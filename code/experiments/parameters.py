@@ -21,7 +21,7 @@ params_dict_cifar = {
     'lr_swish': 0.00001,
     'lr_tanh' : 0.00001,
     'batch_size' : 64,
-    'max_epochs' :100,
+    'max_epochs' :150,
     'classes' : 10,
     'weight_decay': 0.000125
 }
@@ -36,7 +36,7 @@ params_dict_intel = {
     'lr_tanh' : 0.00001,
     'batch_size' : 64,
     'classes' : 6,
-    'max_epochs' :40,
+    'max_epochs' :75,
     'weight_decay' : 0.000125
 }
 #    'lr_relu' : 0.0006,
@@ -48,6 +48,6 @@ params_dict_mnist = {
     'lr_tanh' : 0.0001,
     'batch_size' : 128,
     'classes' : 10,
-    'max_epochs' :50,
+    'max_epochs' :100,
     'weight_decay': 0.000125
 }

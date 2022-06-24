@@ -55,8 +55,43 @@ def accuracy_loss(val=True):
     for i,model in enumerate(m):
 
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,f'CIFAR__DROP_SCHED_LINEAR_32x+0.1_{m_names[i]}',params_dict_cifar,m_names[i])
-        a.compute_drop_sched(train,test,10)
+        a = ActivationFunction(model,f'CIFAR__DROP_SCHED_log_e_1_5+1_{m_names[i]}',params_dict_cifar,m_names[i])
+        a.compute_drop_sched(train,test,15)
+
+def accuracy_loss_batch():
+    batch_size_train = params_dict_cifar['batch_size']
+    batch_size_test = params_dict_cifar['batch_size']
+
+    print('Loading Data... \n')
+
+    data = CIFAR10(0.0,'test')
+    data.prepare_data()
+    m,s = data.get_mean_std()
+    print('Done.')
+
+    dataset = CustomDataset
+
+    print('Loading train and test samples into DataLoader... \n')
+    X_train,y_train = data.get_data('train')
+    X_test, y_test = data.get_data('test')
+    
+    train = dataset(X_train,y_train)
+    test = dataset(X_test,y_test)
+    train.set_mean_std(m,s)
+    test.set_mean_std(m,s)
+    train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+    test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+    print('Done')
+    m = [CNN_CIFAR_RELU_drop_sched_0()]           
+    m_names = ['relu']
+    print('Before test start make sure that you have set the correct parameters')
+    input('Press any key to continue...')
+
+    for i,model in enumerate(m):
+
+        print(f'Training CNN with activation function [{m_names[i]}]')
+        a = ActivationFunction(model,f'CIFAR_DROP_dropp_drop_log_var11_{m_names[i]}',params_dict_cifar,m_names[i])
+        a.compute_drop_sched_batch(train,test,10,'drop_log_var11') 
 
 def gradients():
     batch_size_train = params_dict_cifar['batch_size']
@@ -521,7 +556,8 @@ def gradients_input_output_all_layers():
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 
 def main():
-    accuracy_loss(val=False)
+    #accuracy_loss(val=False)
+    accuracy_loss_batch()
     #gradients()
     #activations()
     #feature_map()
