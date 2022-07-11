@@ -83,17 +83,18 @@ def accuracy_loss_batch():
     train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
-    m = [CNN_INTEL_RELU_drop_sched_0()]
-    m_names = ['relu']
-
+    
+    gamma = np.arange(0.001,0.002,0.001)
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')
 
-    for i,model in enumerate(m):
-
-        print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(model,f'INTEL_DROP_drop_log_var7_g0.7{m_names[i]}',params_dict_intel,m_names[i])
-        a.compute_drop_sched_batch(train,test,15,'drop_log_var7')
+    for g in gamma:
+        for i in range(3):
+            m = [CNN_INTEL_RELU_drop_sched_0(),CNN_INTEL_SWISH_drop_sched_0(),CNN_INTEL_TANH_drop_sched_0()]
+            m_names = ['relu','swish','tanh']
+            print(f'Training CNN with activation function [{m_names[i]}]')
+            a = ActivationFunction(m[i],f'INTEL_DROP_drop_log_var37_{g}_{m_names[i]}',params_dict_intel,m_names[i])
+            a.compute_drop_sched_batch(train,test,10,'drop_log_var37',g)
 
 def accuracy_loss_sched(val=True):
     batch_size_train = params_dict_intel['batch_size']

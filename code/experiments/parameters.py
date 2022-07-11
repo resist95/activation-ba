@@ -17,11 +17,12 @@ import sys
 #    'lr_tanh' : 0.00001,
 
 params_dict_cifar = {
-    'lr_relu' : 0.00001,
-    'lr_swish': 0.00001,
-    'lr_tanh' : 0.00001,
+    'model' : 'CIFAR',
+    'lr_relu' : 0.00003,
+    'lr_swish': 0.00003,
+    'lr_tanh' : 0.00003,
     'batch_size' : 64,
-    'max_epochs' :150,
+    'max_epochs' :75,
     'classes' : 10,
     'weight_decay': 0.000125
 }
@@ -31,6 +32,7 @@ params_dict_cifar = {
 #    'lr_tanh' : 0.00003,
 
 params_dict_intel = {
+    'model' : 'INTEL',
     'lr_relu' : 0.00001,
     'lr_swish': 0.00001,
     'lr_tanh' : 0.00001,
@@ -43,9 +45,13 @@ params_dict_intel = {
 #    'lr_swish': 0.0007,
 #    'lr_tanh' : 0.0001,
 params_dict_mnist = {
+    'model' : 'MNIST',
     'lr_relu' : 0.0001,
     'lr_swish': 0.0001,
     'lr_tanh' : 0.0001,
+    'log_relu' : 2.05,
+    'log_swish' : 2.03,
+    'log_tanh' : 2.02,
     'batch_size' : 128,
     'classes' : 10,
     'max_epochs' :100,

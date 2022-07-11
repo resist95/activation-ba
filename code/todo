@@ -28,13 +28,87 @@ dropout varianten state of the art raussuchen
 Anzahl varianten anhand von Papern vergleichen
 
 
-Notizen:
-
-- schneller Anstieg am Anfang gut
-- größer 0 anfang ist gut
 
 
 
+INTEL best models: relu -> var 8, swish -> 8, tanh -> 8                 
+
+var8 gamma
+relu: 2.07
+swish: 2.08
+tanh: 2.09
+
+var12 gamma
+relu: 0.000006
+swish: 0.000003
+tanh: 0.000004
+
+var32 gamma
+relu: 0.006
+swish: 0.002
+tanh: 0.004
+
+var37 gamma
+relu: 0.002
+swish: 0.002
+tanh: 0.003
+
+
+CIFAR best models: relu -> var 8, swish -> 8, tanh -> 8
+
+var8 gamma
+relu: 2.00
+swish: 2.00
+tanh: 2.05
+
+var12 gamma
+relu: 0.000006
+swish: 0.000005
+tanh: 0.000004
+
+var32 gamma
+relu: 0.005
+swish: 0.002
+tanh: 0.003
+
+var37 gamma
+relu: 0.004
+swish: 0.002
+tanh: 0.004
+
+
+MNIST best models: relu -> var 8, swish -> 8, tanh -> 32
+
+var8 gamma
+relu: 2.05
+swish: 2.03
+tanh: 2.02
+
+var12 gamma
+relu: 3e-06
+swish: 4e-06
+tanh: 1e-06
+
+var32 gamma
+relu: 0.005
+swish: 0.001
+tanh: 0.002
+
+var37 gamma
+relu: 0.001
+swish: 0.003
+tanh: 0.001
+
+
+static dropout rate 0.9
+
+[X] 1. bestes modell finden
+
+[X] 2. logging testen
+
+[X] 3. Parameter für static und state of the art ermitteln
+
+[] 4. Vergleich mit state of the art
 
 
 

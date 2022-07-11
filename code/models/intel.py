@@ -45,7 +45,7 @@ class CNN_INTEL_RELU(nn.Module):
         
         self.fc1 = nn.Linear(1024,128)
         self.relu7 = nn.ReLU()
-        self.drop_fc = nn.Dropout(0.8)
+        self.drop_fc = nn.Dropout(0.9)
         
         self.fc2 = nn.Linear(128,6)
         
@@ -114,7 +114,7 @@ class CNN_INTEL_SWISH(nn.Module):
         
         self.fc1 = nn.Linear(1024,128)
         self.silu7 = nn.SiLU()
-        self.drop_fc = nn.Dropout(0.8)
+        self.drop_fc = nn.Dropout(0.9)
         self.fc2 = nn.Linear(128,6)
              
         for m in self.modules():
@@ -184,7 +184,7 @@ class CNN_INTEL_TANH(nn.Module):
         
         self.fc1 = nn.Linear(2304,128)
         self.tanh7 = nn.Tanh()
-        self.drop_fc = nn.Dropout(0.8)
+        self.drop_fc = nn.Dropout(0.9)
         self.fc2 = nn.Linear(128,6)
        
         for m in self.modules():
@@ -288,17 +288,6 @@ class CNN_INTEL_RELU_drop_sched_0(nn.Module):
     def update(self,d):
         self.drop_fc = nn.Dropout(d)
         return d
-    
-    def update_drop(self,i):
-        drop_rate = math.log(i+3) /6
-        
-        if drop_rate < 0.9:
-            self.drop_fc = nn.Dropout(drop_rate)
-            return drop_rate
-        else: 
-            self.drop_fc = nn.Dropout(0.9)
-            return 0.9
-        
 
 class CNN_INTEL_SWISH_drop_sched_0(nn.Module):
     def __init__(self):
@@ -371,17 +360,6 @@ class CNN_INTEL_SWISH_drop_sched_0(nn.Module):
     def update(self,d):
         self.drop_fc = nn.Dropout(d)
         return d
-    
-    def update_drop(self,i):
-        drop_rate = math.log(i+3) /6
-        
-        if drop_rate < 0.9:
-            self.drop_fc = nn.Dropout(drop_rate)
-            return drop_rate
-        else: 
-            self.drop_fc = nn.Dropout(0.9)
-            return 0.9
-
 
 class CNN_INTEL_TANH_drop_sched_0(nn.Module):
     def __init__(self):
@@ -457,16 +435,6 @@ class CNN_INTEL_TANH_drop_sched_0(nn.Module):
         self.drop_fc = nn.Dropout(d)
         return d
     
-    def update_drop(self,i):
-        drop_rate = math.log(i+3) /6
-        
-        if drop_rate < 0.9:
-            self.drop_fc = nn.Dropout(drop_rate)
-            return drop_rate
-        else: 
-            self.drop_fc = nn.Dropout(0.9)
-            return 0.9
-
 from torchsummary import summary
 
 model = CNN_INTEL_RELU_drop_sched_0()
