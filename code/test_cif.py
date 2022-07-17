@@ -83,25 +83,15 @@ def accuracy_loss_batch():
     test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
     print('Done')
     
-    dic = dict()
-    dic = {
-    'var8' : [2.00,2.00,2.05],
-    'var12' : [6e-06,5e-06,4e-06],
-    'var32' : [0.005,0.002,0.003],
-    'var37' : [0.004,0.002,0.004]
-    }
-
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')
     
-    for key in dic.keys():
-        for i in range(3):
-            m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
-            gamma = dic[key][i]
-            m_names = ['relu','swish','tanh']
-            print(f'Training CNN with activation function [{m_names[i]}]')
-            a = ActivationFunction(m[i],f'CIFAR_DROP_log_{key}_{gamma}_{m_names[i]}',params_dict_cifar,m_names[i])
-            a.compute_drop_sched_batch(train,test,100,f'drop_log_{key}',gamma)
+    for i in range(3):
+        m = [CNN_CIFAR_TANH_drop_sched_0()]
+        m_names = ['tanh']
+        print(f'Training CNN with activation function [{m_names[i]}]')
+        a = ActivationFunction(m[i],f'MNIST_DROP_log_lr_0.00003{m_names[i]}',params_dict_cifar,m_names[i])
+        a.compute_drop_sched_batch(train,test,25,f'drop_log',False)
 
 def gradients():
     batch_size_train = params_dict_cifar['batch_size']

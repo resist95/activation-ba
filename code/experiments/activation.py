@@ -87,26 +87,27 @@ class ActivationFunction:
   def _prob(self,x,mode):
     
     if mode == 'drop_cur':
-      gamma = 0.001
-      d = 0.5      
-      return (1.-d)*np.exp(-gamma*x)+d
-    if mode == 'drop_ann':
-      gamma = 0.001
-      d = 0.5      
-      if (1.-d)* np.exp(- gamma * x) < 0.9:
-        return (1.-d)* np.exp(- gamma * x)
+      if -0.5 * np.exp(-0.001*x) + 1 < 0.9:
+        return -0.5 * np.exp(-0.001*x) + 1
       else:
         return 0.9
+    if mode == 'drop_ann':
+      gamma = 0.0001
+      d = 0.5      
+      if (1.-d)* np.exp(- gamma * x) < 0.1:
+        return 0.1
+      else:
+        return (1.-d)* np.exp(- gamma * x)
     if mode == 'drop_log':
       act_fn = self.dict['act_fn']
       gamma = self.dict[f'log_{act_fn}']
       d = 0.25
-      if (1-0.5)*(np.log(x) / np.exp(gamma))+d < 0.9:
-        return (1-0.5)*(np.log(x) / np.exp(gamma))+d
+      if 0.5 / np.exp(gamma)*(np.log(x))+d < 0.9:
+        return 0.5 / np.exp(gamma)*(np.log(x))+d
       else:
         return 0.9
     if mode == 'normal':
-      d = 0.5
+      d = 0.8
       return d
 
   def __train_batch(self,epoch,train,mode):

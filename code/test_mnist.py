@@ -87,8 +87,8 @@ def accuracy_loss_batch():
         m = [CNN_MNIST_RELU_drop_sched_0(),CNN_MNIST_SWISH_drop_sched_0(),CNN_MNIST_TANH_drop_sched_0()]
         m_names = ['relu','swish','tanh']
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(m[i],f'MNIST_DROP_log_{m_names[i]}',params_dict_mnist,m_names[i])
-        a.compute_drop_sched_batch(train,test,100,f'drop_log',True)
+        a = ActivationFunction(m[i],f'MNIST_DROP_log{m_names[i]}',params_dict_mnist,m_names[i])
+        a.compute_drop_sched_batch(train,test,25,f'drop_log',False)
    
 def gradients():
     batch_size_train = params_dict_mnist['batch_size']
@@ -434,8 +434,8 @@ def gradients_input_output_all_layers():
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 
 def main():
-    accuracy_loss(val=False)
-    #accuracy_loss_batch()
+    #accuracy_loss(val=False)
+    accuracy_loss_batch()
     #feature_map()
     #gradients()
     #activations()

@@ -1,128 +1,33 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from pandas import lreshape
-import seaborn as sns
-from sklearn.utils import shuffle
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.utils.data as data
-import math
-import sys
-import os
-from collections import OrderedDict
-from typing import Dict, Callable
-
-sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'))
-
-from datasets.data import Intel
-from models.intel_models import CNN_INTEL,CNN_INTEL_2,CNN_INTEL_3,CNN_INTEL_4
-from datasets.datasets import CustomDataset
-
-from datasets.data import MNIST
-from models.mnist_models import CNN_MNIST_ACT
-
-sns.set()
-
-import torch
-
-import torch.optim as optim
-from torch.utils.tensorboard import SummaryWriter
-from datetime import datetime
-now = datetime.now()
-
-current_time = now.strftime("%H:%M:%S")
-x = current_time.replace(':','_')
 
 
-#device setup 
-device =  'cuda' if torch.cuda.is_available() else 'cpu'
-if device == 'cuda':
-    print('running on gpu')
 
-writer = SummaryWriter()
-#Params 0.1, 0.03, 0.001, 0.0003
-
-lr = 0.0005
-epochs = 30
-batch_size = 64
+x = input('Which DS to test 1: MNIST, 2: CIFAR, 3: INTEL')
 
 
-#Data
-dat = Intel(0.2,'validate')
-m,s = dat.get_mean_std()
-#dataset
-ds = CustomDataset
-ds.set_mean_std(ds,mean=m,std=s)
-
-criterion = nn.CrossEntropyLoss()
-#get data for dl
-X_train,y_train = dat.get_data('train')
-X_val,y_val = dat.get_data('val')
-train = ds(X_train,y_train)
-test = ds(X_val,y_val)
-
-trains = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size,shuffle=True)
-tests = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size,shuffle=False)
+if x == 0:
+    from test_mnist import *
+elif x == 1:
+    from test_cif import *
+elif x == 2:
+    from test_int import *
 
 
-def evaluate(X, y, train=False):
-    if train:
-        model.zero_grad()
-    scores = model(X)
-    matches = [torch.argmax(i) == torch.argmax(j) for i,j in zip(scores,y)]
-    acc = matches.count(True)/len(matches)
 
-    loss = criterion(scores,y)
-    if train:
-        loss.backward()
-        optimizer.step()
-    return acc,loss.item()
 
-def train(epoch,train):
-    model.train()
-    acc = 0.0
-    loss = 0.0
-    for idx,(data,targets) in enumerate(train):
-        
-        data = data.to(device=device)
-        targets = targets.to(device=device)
-        
-        accs, losses = evaluate(data,targets,train=True)
-        loss += losses * data.size(0)
-        acc += accs * data.size(0)
-    
-    mean_acc = acc / len(train.dataset)
-    mean_loss = loss / len(train.dataset)
-    writer.add_scalar('Mean Accuracy Train',mean_acc,epoch)
-    writer.add_scalar('Mean Loss Train',mean_loss,epoch)
-    return mean_acc, mean_loss
-def test(epoch,test):
-    model.eval()
-    acc = 0.0
-    loss = 0.0
-    with torch.no_grad():
-        for (data,targets) in test:
-            data = data.to(device=device)
-            targets = targets.to(device=device)
 
-            accs, losses = evaluate(data,targets,train=False)
-            loss += losses * data.size(0)
-            acc += accs * data.size(0)
-    mean_acc = acc / len(test.dataset)
-    mean_loss = loss / len(test.dataset)
-    writer.add_scalar('Mean Accuracy Test',mean_acc,epoch)
-    writer.add_scalar('Mean Loss Test',mean_loss,epoch)
-    return mean_acc, mean_loss
-ms = [CNN_INTEL,CNN_INTEL_2,CNN_INTEL_3,CNN_INTEL_4]
-for i,model in enumerate(ms):
-    model = CNN_INTEL()
-    optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=0.000125)
-    model.to(device)
-    writer = SummaryWriter(f'runs/intel_tests_tanh_{x}_{i}_{lr}')     
-    
-    for epoch in range(epochs):
-        print(f'Epoch: [{epoch+1} / {epochs}] [{lr}]')
-        train_acc,train_loss = train(epoch,trains)
 
-        test_acc,test_loss = test(epoch,tests)
-        print(f'Test acc: {test_acc} Test loss: {test_loss} Train acc: {train_acc} Train loss: {train_loss}')
+
+#accuracy_loss(val=False)
+#accuracy_loss_batch()
+#gradients()
+#activations()
+#feature_map()
+#activations_input()
+#feature_map_input()
+#gradients_input()
+#feature_map_per_layer()
+#feature_map_grad()
+#gradients_output()
+#gradients_hook_classes()
+#gradients_input_output()
+#gradients_input_output_all_layers()

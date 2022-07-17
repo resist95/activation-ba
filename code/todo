@@ -107,8 +107,17 @@ static dropout rate 0.9
 [X] 2. logging testen
 
 [X] 3. Parameter für static und state of the art ermitteln
+state of the art: variational dropout, curriculum
 
 [] 4. Vergleich mit state of the art
 
 
 
+
+Statisches Dropout mit besten Ergebnis
+Durchführung:
+Fixed learn rate Nein individuell pro Aktivierungsfunktion
+Averaging ja 10mal
+Gleiche Traindaten pro Lauf nein jeweils neu samplen
+Gleiche Traindaten für jede Dropout Methode ja
+Logging 
