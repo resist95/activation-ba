@@ -64,7 +64,7 @@ def accuracy_loss_batch():
 
     print('Loading Data... \n')
 
-    data = CIFAR10(0.0,'test')
+    data = CIFAR10(0.1,'validate')
     data.prepare_data()
     m,s = data.get_mean_std()
     print('Done.')
@@ -73,7 +73,7 @@ def accuracy_loss_batch():
 
     print('Loading train and test samples into DataLoader... \n')
     X_train,y_train = data.get_data('train')
-    X_test, y_test = data.get_data('test')
+    X_test, y_test = data.get_data('val')
     
     train = dataset(X_train,y_train)
     test = dataset(X_test,y_test)
@@ -87,11 +87,11 @@ def accuracy_loss_batch():
     input('Press any key to continue...')
     
     for i in range(3):
-        m = [CNN_CIFAR_TANH_drop_sched_0()]
-        m_names = ['tanh']
+        m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
+        m_names = ['relu','swish','tanh']
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(m[i],f'MNIST_DROP_log_lr_0.00003{m_names[i]}',params_dict_cifar,m_names[i])
-        a.compute_drop_sched_batch(train,test,25,f'drop_log',False)
+        a = ActivationFunction(m[i],f'MNIST_DROP_ann_2.01{m_names[i]}',params_dict_cifar,m_names[i])
+        a.compute_drop_sched_batch(train,test,5,f'drop_log',False)
 
 def gradients():
     batch_size_train = params_dict_cifar['batch_size']

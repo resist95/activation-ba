@@ -21,25 +21,22 @@ from experiments.helper import set_backward_hook,set_backward_hook_out
 from experiments.helper import gradients_in
 from experiments.helper import set_backward_hook_in_out_all_layers,set_backward_hook_out_all_layers
 from experiments.helper import set_backward_hook_in_out
+#from experiments.parameters import params_dict_mnist
 
 class ActivationFunction:
-  def __init__(self,model,param,dict,act_fn):
+  def __init__(self,model,param,dict,dict_algo,act_fn,method,num):
+    self.num = num
     self.model = model #aktuell zu trainierende modell
+    self.method = method
+    self.act_fn = act_fn
     self.lv = 1
-    self.dict = {
-        'model' : dict['model'],
-        'act_fn' : act_fn,  #aktuelle aktivierungsfunktion
-        'lr' : dict[f'lr_{act_fn}'],  #learn rate variabel pro akt.fkt.
-        'epochs' : dict['max_epochs'],  #max epochs pro akt.fkt. variabel
-        'classes' : dict['classes'],  #Klassenanzahl für einzelnen Datensatz
-        'weight_decay' : dict['weight_decay'], #l2 regularisierung zur vermeidung overfitting für alle akt.fkt. gleich
-        'log_relu' : dict['log_relu'],
-        'log_swish' : dict['log_swish'],
-        'log_tanh' : dict['log_tanh'],
-    }
+    self.dict = dict
+    self.dict_algo = dict_algo
+    lr = self.dict_algo[f'lr_{act_fn}_{method}']
+    print(lr)
     #Initialisierung Loss und Optimizer
     self.criterion = nn.CrossEntropyLoss()
-    self.optimizer = torch.optim.Adam(self.model.parameters(),lr=self.dict['lr'],weight_decay=self.dict['weight_decay'])
+    self.optimizer = torch.optim.Adam(self.model.parameters(),lr=lr,weight_decay=self.dict['weight_decay'])
     
     #Initialisierung writer und GPU
     self.writer = prepare_summary_writer(param,act_fn)
@@ -85,22 +82,25 @@ class ActivationFunction:
       return mean_acc,mean_loss
     
   def _prob(self,x,mode):
-    
+    dict = self.dict_algo
     if mode == 'drop_cur':
-      if -0.5 * np.exp(-0.001*x) + 1 < 0.9:
-        return -0.5 * np.exp(-0.001*x) + 1
+      act_fn = self.act_fn
+      gamma = dict[f'cur_{act_fn}']
+      if -0.5 * np.exp(-gamma*x) + 1 < 0.9:
+        return -0.5 * np.exp(-gamma*x) + 1
       else:
         return 0.9
     if mode == 'drop_ann':
-      gamma = 0.0001
+      act_fn = self.act_fn
+      gamma = dict[f'ann_{act_fn}']
       d = 0.5      
       if (1.-d)* np.exp(- gamma * x) < 0.1:
         return 0.1
       else:
         return (1.-d)* np.exp(- gamma * x)
     if mode == 'drop_log':
-      act_fn = self.dict['act_fn']
-      gamma = self.dict[f'log_{act_fn}']
+      act_fn = self.act_fn
+      gamma = dict[f'log_{act_fn}']
       d = 0.25
       if 0.5 / np.exp(gamma)*(np.log(x))+d < 0.9:
         return 0.5 / np.exp(gamma)*(np.log(x))+d
@@ -300,7 +300,7 @@ class ActivationFunction:
       train_loss = []
       test_loss = []
       
-      n_epochs = int(self.dict['epochs'])
+      n_epochs = int(self.dict['max_epochs'])
       self.model.to(self.device)
       i = 0.0
       for epoch in range(n_epochs):
@@ -329,11 +329,11 @@ class ActivationFunction:
             break
       if log == True:
         model = self.dict['model']
-        act_fn = self.dict['act_fn']
-        f = open(f'test_acc_{act_fn}_{model}.txt','w+')
-        ff = open(f'train_acc_{act_fn}_{model}.txt','w+')
-        fff = open(f'test_loss_{act_fn}_{model}.txt','w+')
-        ffff = open(f'train_loss_{act_fn}_{model}.txt','w+')
+        act_fn = self.act_fn
+        f = open(f'test_acc_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        ff = open(f'train_acc_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        fff = open(f'test_loss_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        ffff = open(f'train_loss_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
         for lv,i in enumerate(test_acc):
           f.write(f'{i}\n')
           ff.write(f'{train_acc[lv]}\n')
@@ -343,6 +343,7 @@ class ActivationFunction:
         ff.close()
         fff.close()
         ffff.close()
+        self.lv += 1
 
         
     
