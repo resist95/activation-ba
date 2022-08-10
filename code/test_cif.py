@@ -10,7 +10,7 @@ from models.cifar import CNN_CIFAR_RELU,CNN_CIFAR_SWISH,CNN_CIFAR_TANH
 from models.cifar import CNN_CIFAR_RELU_drop_sched_0
 from models.cifar import CNN_CIFAR_SWISH_drop_sched_0
 from models.cifar import CNN_CIFAR_TANH_drop_sched_0
-from experiments.parameters import params_dict_cifar
+from experiments.parameters import params_dict_cifar, params_dict_cifar_algo
 from experiments.activation import ActivationFunction
 
 from torch.utils.tensorboard import SummaryWriter
@@ -64,7 +64,7 @@ def accuracy_loss_batch():
 
     print('Loading Data... \n')
 
-    data = CIFAR10(0.1,'validate')
+    data = CIFAR10(0.0,'test')
     data.prepare_data()
     m,s = data.get_mean_std()
     print('Done.')
@@ -73,7 +73,7 @@ def accuracy_loss_batch():
 
     print('Loading train and test samples into DataLoader... \n')
     X_train,y_train = data.get_data('train')
-    X_test, y_test = data.get_data('val')
+    X_test, y_test = data.get_data('test')
     
     train = dataset(X_train,y_train)
     test = dataset(X_test,y_test)
@@ -87,11 +87,11 @@ def accuracy_loss_batch():
     input('Press any key to continue...')
     
     for i in range(3):
-        m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
-        m_names = ['relu','swish','tanh']
+        m = [CNN_CIFAR_TANH_drop_sched_0()]
+        m_names = ['tanh']
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(m[i],f'MNIST_DROP_ann_2.01{m_names[i]}',params_dict_cifar,m_names[i])
-        a.compute_drop_sched_batch(train,test,5,f'drop_log',False)
+        a = ActivationFunction(m[i],f'MNIST_DROP_cur_0.00003{m_names[i]}',params_dict_cifar,params_dict_cifar_algo,m_names[i],'drop_cur',1)
+        a.compute_drop_sched_batch(train,test,5,f'drop_cur',False)
 
 def gradients():
     batch_size_train = params_dict_cifar['batch_size']
@@ -555,9 +555,88 @@ def gradients_input_output_all_layers():
         a = ActivationFunction(model,'gradient_input',params_dict_cifar,m_names[i])
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 
+
+def run(number):
+    #,'drop_cur','drop_ann','drop_log'
+    methods = ['normal','drop_cur','drop_ann','drop_log']
+    act_fn = ['relu', 'swish', 'tanh']
+    dataset = 'cifar'
+    
+    batch_size_train = params_dict_cifar['batch_size']
+    batch_size_test = params_dict_cifar['batch_size']
+    
+    for k in params_dict_cifar_algo.keys():
+        print(params_dict_cifar_algo[k])
+
+    for i in range(7,number):
+        print(f'run {i} | {number}')
+        data = CIFAR10(0.0,'test')
+        data.prepare_data()
+        m,s = data.get_mean_std()
+
+        dataset = CustomDataset
+        X_train,y_train = data.get_data('train')
+        X_test, y_test = data.get_data('test')
+        train = dataset(X_train,y_train)
+        test = dataset(X_test,y_test)
+        train.set_mean_std(m,s)
+        test.set_mean_std(m,s)
+        train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+        test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+        
+        for method in methods:
+            for l,fn in enumerate(act_fn):
+                m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
+                
+                print(f'Training CNN with activation function [{fn[l]}]')
+                a = ActivationFunction(m[l],f'MNIST_{method}_run_{l}',params_dict_cifar,params_dict_cifar_algo,fn,method,i)
+                a.compute_drop_sched_batch(train,test,5,method,True)
+        
+        del data
+
+
+def run2(number):
+    #,'drop_cur','drop_ann','drop_log'
+    methods = ['normal','drop_cur','drop_ann','drop_log']
+    act_fn = ['relu', 'swish', 'tanh']
+    dataset = 'cifar'
+    
+    batch_size_train = params_dict_cifar['batch_size']
+    batch_size_test = params_dict_cifar['batch_size']
+    
+    for k in params_dict_cifar_algo.keys():
+        print(params_dict_cifar_algo[k])
+
+    for i in range(number):
+        print(f'run {i} | {number}')
+        data = CIFAR10(0.0,'test')
+        data.prepare_data()
+        m,s = data.get_mean_std()
+
+        dataset = CustomDataset
+        X_train,y_train = data.get_data('train')
+        X_test, y_test = data.get_data('test')
+        train = dataset(X_train,y_train)
+        test = dataset(X_test,y_test)
+        train.set_mean_std(m,s)
+        test.set_mean_std(m,s)
+        train = torch.utils.data.DataLoader(dataset=train,batch_size=batch_size_train,shuffle=False)
+        test = torch.utils.data.DataLoader(dataset=test,batch_size=batch_size_test,shuffle=False)
+        
+        for method in methods:
+            for l,fn in enumerate(act_fn):
+                m = [CNN_CIFAR_RELU_drop_sched_0(),CNN_CIFAR_SWISH_drop_sched_0(),CNN_CIFAR_TANH_drop_sched_0()]
+                
+                print(f'Training CNN with activation function [{fn[l]}]')
+                a = ActivationFunction(m[l],f'MNIST_{method}_run_{l}',params_dict_cifar,params_dict_cifar_algo,fn,method,i)
+                a.compute_drop_sched_batch(train,test,10,method,True)
+        
+        del data
+
 def main():
+    run(10)
     #accuracy_loss(val=False)
-    accuracy_loss_batch()
+    #accuracy_loss_batch()
     #gradients()
     #activations()
     #feature_map()

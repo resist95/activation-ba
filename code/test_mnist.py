@@ -88,11 +88,11 @@ def accuracy_loss_batch(val=True):
     print('Before test start make sure that you have set the correct parameters')
     input('Press any key to continue...')
     
-    for i in range(1):
-        m = [CNN_MNIST_TANH_drop_sched_0()]
+    for i in range(3):
+        m = [CNN_MNIST_RELU_drop_sched_0(),CNN_MNIST_SWISH_drop_sched_0(),CNN_MNIST_TANH_drop_sched_0()]
         m_names = ['relu','swish','tanh']
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(m[i],f'MNIST_DROP_ann_lr_0.0001{m_names[i]}',params_dict_mnist,params_dict_mnist_algo,m_names[i],'drop_ann',1)
+        a = ActivationFunction(m[i],f'MNIST_DROP_0.00009_{m_names[i]}',params_dict_mnist,params_dict_mnist_algo,m_names[i],'drop_ann',1)
         a.compute_drop_sched_batch(train,test,10,f'drop_ann',False)
    
 def gradients():
@@ -439,16 +439,16 @@ def gradients_input_output_all_layers():
         a.compute_gradients_per_class_hook_in_out_all(train,test)
 
 def run(number):
-    #,'drop_cur','drop_ann','drop_log'
-    methods = ['normal']
+    methods = ['normal','drop_cur','drop_ann','drop_log']
     act_fn = ['relu', 'swish', 'tanh']
     dataset = 'mnist'
     
     batch_size_train = params_dict_mnist['batch_size']
     batch_size_test = params_dict_mnist['batch_size']
     
-    for i in range(3,number):
-
+    for i in range(8,number):
+        print(f'run {i} | {number}')
+        
         data = MNIST(0.0,'test')
         data.prepare_data()
         m,s = data.get_mean_std()
@@ -469,7 +469,7 @@ def run(number):
                 
                 print(f'Training CNN with activation function [{fn[l]}]')
                 a = ActivationFunction(m[l],f'MNIST_{method}_run_{l}',params_dict_mnist,params_dict_mnist_algo,fn,method,i)
-                a.compute_drop_sched_batch(train,test,100,method,True)
+                a.compute_drop_sched_batch(train,test,10,method,True)
         
         del data
     
@@ -504,9 +504,9 @@ def run(number):
         a = ActivationFunction(m[i],f'MNIST_DROP_ann_lr_0.00007{m_names[i]}',params_dict_mnist,m_names[i])
         a.compute_drop_sched_batch(train,test,10,f'drop_ann',False)'''
 def main():
-    #run(10)
+    run(10)
     #accuracy_loss(val=False)
-    accuracy_loss_batch(val=True)
+    #accuracy_loss_batch(val=True)
     #feature_map()
     #gradients()
     #activations()

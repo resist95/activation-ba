@@ -9,7 +9,7 @@ from datasets.datasets import CustomDataset
 from models.intel import CNN_INTEL_RELU,CNN_INTEL_SWISH,CNN_INTEL_TANH
 from models.intel import CNN_INTEL_RELU_drop_sched_0,CNN_INTEL_SWISH_drop_sched_0,CNN_INTEL_TANH_drop_sched_0
 
-from experiments.parameters import params_dict_intel
+from experiments.parameters import params_dict_intel, params_dict_intel_algo
 from experiments.activation import ActivationFunction
 
 from torch.utils.tensorboard import SummaryWriter
@@ -91,8 +91,9 @@ def accuracy_loss_batch():
         m = [CNN_INTEL_RELU_drop_sched_0(),CNN_INTEL_SWISH_drop_sched_0(),CNN_INTEL_TANH_drop_sched_0()]
         m_names = ['relu','swish','tanh']
         print(f'Training CNN with activation function [{m_names[i]}]')
-        a = ActivationFunction(m[i],f'intel_DROP_normal_0.00001_{m_names[i]}',params_dict_intel,m_names[i])
-        a.compute_drop_sched_batch(train,test,10,f'drop_ann',False)
+        a = ActivationFunction(m[i],f'intel_DROP_cur_test_{m_names[i]}',params_dict_intel,params_dict_intel_algo,m_names[i],'drop_cur',1)
+        a.compute_drop_sched_batch(train,test,5,f'drop_cur',False)
+
 def accuracy_loss_sched(val=True):
     batch_size_train = params_dict_intel['batch_size']
     batch_size_test = params_dict_intel['batch_size']

@@ -345,7 +345,62 @@ class ActivationFunction:
         ffff.close()
         self.lv += 1
 
-        
+  def compute_drop_sched_batch_early_stop(self,train,test,patience,mode,log=False):
+      best_loss = 100
+      trigger = 0 
+      stop = False #benoetigt fuer early stopping
+      train_acc = []
+      test_acc = []
+      train_loss = []
+      test_loss = []
+      
+      n_epochs = int(self.dict['max_epochs'])
+      self.model.to(self.device)
+      i = 0.0
+      for epoch in range(n_epochs):
+          
+          acc,loss = self.__train_batch(epoch,train,mode)
+          train_acc.append(acc)
+          train_loss.append(loss)
+          
+          acc,loss = self.__test(epoch,test)
+          test_acc.append(acc)
+          test_loss.append(loss)
+          curr_loss = loss
+
+          if (best_loss > curr_loss): #Kontrolle ob aktueller loss schlechter als vorheriger
+            best_loss = curr_loss
+          
+          if (curr_loss > best_loss): #patience
+            trigger +=1
+            if trigger == 1:
+              model = self.dict['model']        
+              torch.save(model.state_dict(), f'saved_models/{self.method}_{model}_{self.act_fn}_{self.num}')
+            print(f'curr_loss: {curr_loss}, best_loss: {best_loss}')
+            if (trigger >= patience): #wenn patience überschritten wird abbruch training
+              print(f'Early Stopping! Measuring last val Accuracy and loss')
+              stop = True
+          else:
+            trigger = 0
+          if stop == True:
+            break
+      if log == True:
+        model = self.dict['model']
+        act_fn = self.act_fn
+        f = open(f'test_acc_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        ff = open(f'train_acc_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        fff = open(f'test_loss_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        ffff = open(f'train_loss_{act_fn}_{model}_{self.method}_{self.num}.txt','w+')
+        for lv,i in enumerate(test_acc):
+          f.write(f'{i}\n')
+          ff.write(f'{train_acc[lv]}\n')
+          fff.write(f'{test_loss[lv]}\n')
+          ffff.write(f'{train_loss[lv]}\n')
+        f.close()
+        ff.close()
+        fff.close()
+        ffff.close()
+        self.lv += 1      
     
   def compute_gradients_per_class(self,train,test,patience):
       best_loss = 100
